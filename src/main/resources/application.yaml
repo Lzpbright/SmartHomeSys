@@ -1,0 +1,16 @@
+server:
+  port: 8080  # 设置启动端口
+spring:
+  datasource:  # 数据源信息
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/mybatis?serverTimezone=GMT%2B8
+    username: root
+    password: 123456
+  mvc:
+    pathmatch:
+      matching-strategy: ANT_PATH_MATCHER # swagger3之后需要设置
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl # 设置mybatis-plus的log
+  mapper-locations: classpath:mapperXML/*.xml # mapperXML的地址
+
