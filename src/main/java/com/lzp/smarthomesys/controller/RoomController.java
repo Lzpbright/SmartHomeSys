@@ -1,4 +1,4 @@
-package com.lzp.generatortest.controller;
+package com.lzp.smarthomesys.controller;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @since 2023-02-22
  */
 @RestController
-@RequestMapping("/generatortest/room")
+@RequestMapping("/smarthomesys/room")
 public class RoomController {
 
 }

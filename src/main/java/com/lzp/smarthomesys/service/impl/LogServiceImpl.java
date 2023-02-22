@@ -1,9 +1,9 @@
-package com.lzp.generatortest.service.impl;
+package com.lzp.smarthomesys.service.impl;
 
-import com.lzp.generatortest.entity.Log;
-import com.lzp.generatortest.mapper.LogMapper;
-import com.lzp.generatortest.service.ILogService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lzp.smarthomesys.entity.Log;
+import com.lzp.smarthomesys.mapper.LogMapper;
+import com.lzp.smarthomesys.service.ILogService;
 import org.springframework.stereotype.Service;
 
 /**

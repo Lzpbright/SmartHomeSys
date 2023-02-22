@@ -1,11 +1,13 @@
-package com.lzp.generatortest.entity;
+package com.lzp.smarthomesys.entity;
 
-import java.io.Serializable;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+
+import java.io.Serializable;
 
 /**
  * <p>
@@ -15,10 +17,11 @@ import lombok.experimental.Accessors;
  * @author Bright J
  * @since 2023-02-22
  */
-@Getter
-@Setter
+@Data
 @Accessors(chain = true)
 @ApiModel(value = "Lock对象")
+@AllArgsConstructor
+@NoArgsConstructor
 public class Lock implements Serializable {
 
     @ApiModelProperty("门锁标识")

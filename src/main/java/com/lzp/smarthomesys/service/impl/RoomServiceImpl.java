@@ -1,9 +1,9 @@
-package com.lzp.generatortest.service.impl;
+package com.lzp.smarthomesys.service.impl;
 
-import com.lzp.generatortest.entity.Room;
-import com.lzp.generatortest.mapper.RoomMapper;
-import com.lzp.generatortest.service.IRoomService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lzp.smarthomesys.entity.Room;
+import com.lzp.smarthomesys.mapper.RoomMapper;
+import com.lzp.smarthomesys.service.IRoomService;
 import org.springframework.stereotype.Service;
 
 /**

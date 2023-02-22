@@ -1,6 +1,6 @@
-package com.lzp.generatortest.mapper;
+package com.lzp.smarthomesys.mapper;
 
-import com.lzp.generatortest.entity.Room;
+import com.lzp.smarthomesys.entity.Room;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**

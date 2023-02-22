@@ -1,9 +1,9 @@
-package com.lzp.generatortest.service.impl;
+package com.lzp.smarthomesys.service.impl;
 
-import com.lzp.generatortest.entity.Aircon;
-import com.lzp.generatortest.mapper.AirconMapper;
-import com.lzp.generatortest.service.IAirconService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lzp.smarthomesys.entity.Aircon;
+import com.lzp.smarthomesys.mapper.AirconMapper;
+import com.lzp.smarthomesys.service.IAirconService;
 import org.springframework.stereotype.Service;
 
 /**

@@ -1,9 +1,9 @@
-package com.lzp.generatortest.service.impl;
+package com.lzp.smarthomesys.service.impl;
 
-import com.lzp.generatortest.entity.Lock;
-import com.lzp.generatortest.mapper.LockMapper;
-import com.lzp.generatortest.service.ILockService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lzp.smarthomesys.entity.Lock;
+import com.lzp.smarthomesys.mapper.LockMapper;
+import com.lzp.smarthomesys.service.ILockService;
 import org.springframework.stereotype.Service;
 
 /**

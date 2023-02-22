@@ -14,8 +14,8 @@ import java.util.Map;
 class SmartHomeSysApplicationTests {
 
 	@Test
-	void generatorTest(){
-		FastAutoGenerator.create("jdbc:mysql://localhost:3306/mybatis?serverTimezone=GMT%2B8", "root", "123456")
+	void smarthomesys(){
+		FastAutoGenerator.create("jdbc:mysql://localhost:3306/smarthomesys?serverTimezone=GMT%2B8", "root", "123456")
 				.globalConfig(builder -> { // 全局配置器
 					builder.author("Bright J") // 设置作者
 							.enableSwagger() // 开启 swagger 模式
@@ -28,7 +28,7 @@ class SmartHomeSysApplicationTests {
 					// .pathInfo(Collections.singletonMap(OutputFile.xml, "D://")); // 设置mapperXml生成路径 // 默认的了
 				})
 				.strategyConfig(builder -> { // 策略配置器
-					builder.addInclude("t_account") // 设置需要生成的表名
+					builder.addInclude("aircon", "light", "lock", "log", "other", "room", "scene") // 设置需要生成的表名
 							.addTablePrefix("t_", "c_")// 设置过滤表前缀
 							.entityBuilder() // 对于实体层的配置
 							.enableLombok() // 开启lombok
