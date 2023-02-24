@@ -1,3 +1,4 @@
+# 以及有的
 server:
   port: 8080  # 设置启动端口
 spring:
@@ -9,6 +10,12 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ANT_PATH_MATCHER # swagger3之后需要设置
+  mail: # 邮箱配置
+    default-encoding: utf-8 # 邮箱默认编码
+    host: smtp.qq.com # 邮箱服务器名
+    username: lzpBright@qq.com  # 发送账户
+    password: eeddhsgikcntdefe  # 有限授权码
+    port: 587 # 服务器端口
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl # 设置mybatis-plus的log

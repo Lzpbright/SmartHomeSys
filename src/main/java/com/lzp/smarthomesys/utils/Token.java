@@ -71,7 +71,6 @@ public class Token {
         String productId = "569568";
         // 产品的access_key
         String accessKey = "9aVh07RAj13tIqQM5FM6bJbB5jJx5a/oJIg7BokHeqc=";
-
         // 版本号，无需修改
         String version = "2018-10-31";
         // API访问 访问资源

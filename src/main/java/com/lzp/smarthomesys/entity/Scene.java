@@ -22,10 +22,13 @@ import java.io.Serializable;
 @ApiModel(value = "Scene对象")
 @AllArgsConstructor
 @NoArgsConstructor
-public class Scene implements Serializable {
+public class Scene {
 
     @ApiModelProperty("场景标识")
     private String id;
+
+    @ApiModelProperty("所属房间标识")
+    private String roomId;
 
     @ApiModelProperty("场景介绍")
     private String intro;
@@ -36,6 +39,6 @@ public class Scene implements Serializable {
     @ApiModelProperty("0表示未选用, 1表示选用")
     private Integer state;
 
-    @ApiModelProperty("逻辑删除辅助字段")
+    @ApiModelProperty("逻辑删除标志, 0表示未删除, 1表示删除")
     private Integer deleted;
 }

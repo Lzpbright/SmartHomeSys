@@ -22,7 +22,7 @@ import java.io.Serializable;
 @ApiModel(value = "Aircon对象")
 @AllArgsConstructor
 @NoArgsConstructor
-public class Aircon implements Serializable {
+public class Aircon {
 
     @ApiModelProperty("空调标识")
     private String id;
@@ -51,6 +51,6 @@ public class Aircon implements Serializable {
     @ApiModelProperty("额定功率(w)")
     private String power;
 
-    @ApiModelProperty("逻辑删除辅助字段")
+    @ApiModelProperty("逻辑删除标志, 0表示未删除, 1表示删除")
     private Integer deleted;
 }

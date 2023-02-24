@@ -22,10 +22,13 @@ import java.io.Serializable;
 @ApiModel(value = "Room对象")
 @AllArgsConstructor
 @NoArgsConstructor
-public class Room implements Serializable {
+public class Room {
 
     @ApiModelProperty("房间标识")
     private String id;
+
+    @ApiModelProperty("用户标识")
+    private String userId;
 
     @ApiModelProperty("房间位置")
     private String position;
@@ -33,6 +36,6 @@ public class Room implements Serializable {
     @ApiModelProperty("备注")
     private String remarks;
 
-    @ApiModelProperty("逻辑删除辅助字段")
+    @ApiModelProperty("逻辑删除标志, 0表示未删除, 1表示删除")
     private Integer deleted;
 }

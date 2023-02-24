@@ -2,12 +2,19 @@ package com.lzp.smarthomesys;
 
 import com.baomidou.mybatisplus.generator.FastAutoGenerator;
 import com.baomidou.mybatisplus.generator.engine.FreemarkerTemplateEngine;
+import com.lzp.smarthomesys.entity.Log;
+import com.lzp.smarthomesys.service.ILogService;
+import com.lzp.smarthomesys.service.impl.LogServiceImpl;
 import com.lzp.smarthomesys.utils.HttpUtils;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import javax.annotation.Resource;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @SpringBootTest
@@ -28,7 +35,7 @@ class SmartHomeSysApplicationTests {
 					// .pathInfo(Collections.singletonMap(OutputFile.xml, "D://")); // 设置mapperXml生成路径 // 默认的了
 				})
 				.strategyConfig(builder -> { // 策略配置器
-					builder.addInclude("aircon", "light", "lock", "log", "other", "room", "scene") // 设置需要生成的表名
+					builder.addInclude("aircon", "light", "lock", "log", "other", "room", "scene", "user") // 设置需要生成的表名
 							.addTablePrefix("t_", "c_")// 设置过滤表前缀
 							.entityBuilder() // 对于实体层的配置
 							.enableLombok() // 开启lombok
@@ -70,5 +77,30 @@ class SmartHomeSysApplicationTests {
 		System.out.println(result);
 	}
 
+	@Autowired
+	LogServiceImpl service;
 
+	@Test
+	void logTest001(){
+		List<Log> list = service.list();
+		list.forEach(System.out::println);
+	}
+
+	@Test
+	void logTest002(){
+		Log log = new Log();
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		String time = df.format(System.currentTimeMillis());
+		log.setTime(time);
+		log.setTarget("客厅左边空调456");
+		log.setAction("开启");
+		boolean save = service.save(log);
+		System.out.println("save = " + save);
+	}
+
+	@Test
+	void logTest003(){
+		boolean save = service.removeById("1");
+		System.out.println("save = " + save);
+	}
 }

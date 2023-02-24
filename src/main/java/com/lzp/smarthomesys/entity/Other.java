@@ -22,7 +22,7 @@ import java.io.Serializable;
 @ApiModel(value = "Other对象")
 @AllArgsConstructor
 @NoArgsConstructor
-public class Other implements Serializable {
+public class Other {
 
     @ApiModelProperty("其他电器标识")
     private String id;
@@ -36,6 +36,6 @@ public class Other implements Serializable {
     @ApiModelProperty("0:关, 1:开")
     private Integer state;
 
-    @ApiModelProperty("逻辑删除辅助字段")
+    @ApiModelProperty("逻辑删除标志, 0表示未删除, 1表示删除")
     private Integer deleted;
 }

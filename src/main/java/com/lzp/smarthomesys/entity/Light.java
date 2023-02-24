@@ -22,7 +22,7 @@ import java.io.Serializable;
 @ApiModel(value = "Light对象")
 @AllArgsConstructor
 @NoArgsConstructor
-public class Light implements Serializable {
+public class Light {
 
     @ApiModelProperty("灯标识")
     private String id;
@@ -51,6 +51,6 @@ public class Light implements Serializable {
     @ApiModelProperty("光强度，（0~100）*额定功率")
     private Integer intensity;
 
-    @ApiModelProperty("逻辑删除辅助字段")
+    @ApiModelProperty("逻辑删除标志, 0表示未删除, 1表示删除")
     private Integer deleted;
 }

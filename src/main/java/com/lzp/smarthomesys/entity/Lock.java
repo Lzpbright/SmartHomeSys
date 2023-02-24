@@ -22,7 +22,7 @@ import java.io.Serializable;
 @ApiModel(value = "Lock对象")
 @AllArgsConstructor
 @NoArgsConstructor
-public class Lock implements Serializable {
+public class Lock {
 
     @ApiModelProperty("门锁标识")
     private String id;
@@ -48,6 +48,6 @@ public class Lock implements Serializable {
     @ApiModelProperty("临时密码剩余使用次数")
     private Integer remains;
 
-    @ApiModelProperty("逻辑删除辅助字段")
+    @ApiModelProperty("逻辑删除标志, 0表示未删除, 1表示删除")
     private Integer deleted;
 }
