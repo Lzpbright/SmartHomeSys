@@ -1,5 +1,9 @@
 package com.lzp.smarthomesys.utils;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.UnsupportedEncodingException;
@@ -12,6 +16,7 @@ import java.util.Base64;
 /**
  * use：用来生成授权码
  */
+@Component
 public class Token {
 
     public static String assembleToken(String version, String resourceName, String expirationTime,
@@ -66,21 +71,36 @@ public class Token {
         SHA1, MD5, SHA256;
     }
 
-    public static void main(String[] args) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException {
-        // oneNet的产品ID
-        String productId = "569568";
-        // 产品的access_key
-        String accessKey = "9aVh07RAj13tIqQM5FM6bJbB5jJx5a/oJIg7BokHeqc=";
-        // 版本号，无需修改
-        String version = "2018-10-31";
+    // oneNet的产品ID
+    @Value("${onenet.productId}")
+    private String productId;
+    // 产品的access_key
+    @Value("${onenet.accessKey}")
+    private String accessKey;
+    // 版本号，无需修改
+    @Value("${onenet.version}")
+    private String version;
+    // 维护本类中一个静态变量
+    private static Token token;
+
+    @PostConstruct
+    private void init(){
+        token = this;
+        token.accessKey = this.accessKey;
+        token.productId = this.productId;
+        token.version = this.version;
+    }
+
+    public static String getToken() throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException {
+        String productId = token.productId;
+        String accessKey = token.accessKey;
+        String version = token.version;
         // API访问 访问资源
         String resourceName = "products/" + productId;
         // 访问过期时间
         String expirationTime = System.currentTimeMillis() / 1000 + 365 * 24 * 60 * 60 + "";    // 1年
         //签名方法，支持md5、sha1、sha256
         String signatureMethod = SignatureMethod.SHA1.name().toLowerCase();
-        String token = assembleToken(version, resourceName, expirationTime, signatureMethod, accessKey);
-
-        System.out.println("Authorization: " + token);
+        return assembleToken(version, resourceName, expirationTime, signatureMethod, accessKey);
     }
 }

@@ -1,7 +1,7 @@
 package com.lzp.smarthomesys.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.lzp.generatortest.entity.User;
+import com.lzp.smarthomesys.entity.User;
 
 /**
  * <p>

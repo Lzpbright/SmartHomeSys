@@ -1,10 +1,10 @@
-# 以及有的
+# 已经有的
 server:
-  port: 8080  # 设置启动端口
+  port: 8081  # 设置启动端口
 spring:
   datasource:  # 数据源信息
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/smarthomesys?serverTimezone=GMT%2B8
+    url: jdbc:mysql://localhost:3306/smarthomesys?serverTimezone=GMT%2B8 # 47.92.153.40:3306
     username: root
     password: 123456
   mvc:
@@ -14,7 +14,7 @@ spring:
     default-encoding: utf-8 # 邮箱默认编码
     host: smtp.qq.com # 邮箱服务器名
     username: lzpBright@qq.com  # 发送账户
-    password: eeddhsgikcntdefe  # 有限授权码
+    password: eeddhsgikcntdefe  # 邮箱授权码
     port: 587 # 服务器端口
 mybatis-plus:
   configuration:
@@ -27,3 +27,10 @@ mybatis-plus:
       logic-delete-field: deleted # deleted作为逻辑删除辅助字段
       id-type: assign_id  # 对于主键，均采取雪花算法自动生成19位长度
   type-aliases-package: com.lzp.smarthomesys.entity # 取别名，这样xml文件的返回类型只要写一个Student就可以了
+onenet:
+  accessKey: 9aVh07RAj13tIqQM5FM6bJbB5jJx5a/oJIg7BokHeqc= # 产品的access_key
+  productId: 569568 # onenet产品ID
+  version: 2018-10-31 # 版本号，无需改动
+  api_key: eaoh5qproOYKR8cmLoD0ZGLyvhY= # 产品apikey
+  device_id: 1037659370 # 设备id
+  timeout: 30 # 等待响应时间单位为秒

@@ -1,7 +1,7 @@
 package com.lzp.smarthomesys.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.lzp.generatortest.entity.User;
+import com.lzp.smarthomesys.entity.User;
 
 /**
  * <p>
