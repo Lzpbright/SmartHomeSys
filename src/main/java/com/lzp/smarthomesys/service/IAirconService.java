@@ -11,6 +11,23 @@ import com.lzp.smarthomesys.entity.Aircon;
  * @author Bright J
  * @since 2023-02-22
  */
-public interface IAirconService extends IService<Aircon> {
+public interface IAirconService extends IService<Aircon>, IDeviceService {
 
+    void on(String id);
+
+    void off(String id);
+
+    void modeAuto(String id);
+
+    void modeCool(String id);
+
+    void modeHot(String id);
+
+    void modeDry(String id);
+
+    void modeEcono(String id);
+
+    void temper(String id, String temperature);
+
+    void windSpeed(String id, String speed);
 }

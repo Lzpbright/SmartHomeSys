@@ -8,12 +8,16 @@ import com.lzp.smarthomesys.service.impl.UserServiceImpl;
 import com.lzp.smarthomesys.utils.Base64Utils;
 import com.lzp.smarthomesys.utils.EMailUtils;
 import com.lzp.smarthomesys.utils.Result;
+import com.lzp.smarthomesys.utils.UploadUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -24,7 +28,6 @@ import java.util.*;
  * @author Bright J
  * @since 2023-02-24
  */
-@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/user")
 @Api("用户控制器")
@@ -69,11 +72,10 @@ public class UserController {
                 service.save(user);
                 // 默认房间
                 String userId = service.getOne(wrapper).getId();
-                roomService.save(new Room().setUserId(userId).setPosition("客厅"));                roomService.save(new Room().setUserId(userId).setPosition("客厅"));
+                roomService.save(new Room().setUserId(userId).setPosition("客厅"));
                 roomService.save(new Room().setUserId(userId).setPosition("卧室"));
                 roomService.save(new Room().setUserId(userId).setPosition("厨房"));
                 roomService.save(new Room().setUserId(userId).setPosition("卫生间"));
-                roomService.save(new Room().setUserId(userId).setPosition("阳台"));
                 return Result.success().setData("mes", "注册成功!");
             } else {
                 return Result.error().setData("mes", "验证码不匹配");
@@ -124,16 +126,21 @@ public class UserController {
                          @ApiParam(value = "新密码", required = true) @RequestParam(value = "newPassword") String newPassword,
                          @ApiParam(value = "验证码", required = true) @RequestParam("authCode") String authCode){
         User u = service.getById(id);
-        String email = u.getEmail();
-        if (Objects.equals(authCodes.get(email), authCode)){
-            authCodes.remove(email);
-            User user = new User();
-            user.setId(id);
-            user.setPassword(Base64Utils.encode(newPassword));
-            service.updateById(user);
-            return Result.success().setData("mes", "修改成功");
-        }else {
-            return Result.error().setData("mes", "验证码不匹配");
+        if (u != null) {
+            String email = u.getEmail();
+            if (authCode.equals(authCodes.get(email))) {
+                authCodes.remove(email);
+                User user = new User();
+                user.setId(id);
+                user.setPassword(Base64Utils.encode(newPassword));
+                service.updateById(user);
+                return Result.success().setData("mes", "修改成功");
+            } else {
+                return Result.error().setData("mes", "验证码不匹配");
+            }
+        }
+        else{
+            return Result.error().setData("mes", "查无此人");
         }
     }
 
@@ -147,5 +154,42 @@ public class UserController {
         else {
             return Result.error().setData("mes", "没有查到该用户");
         }
+    }
+
+    @PostMapping("/uploadIcon")
+    @ApiOperation("上传头像[头像文件小于5M]")
+    public Result uploads(@ApiParam(value = "用户标识", required = true) @RequestParam("id") String id,
+                          @ApiParam(value = "头像[png, jpg, jpeg, bmp, svg, icon类型]", required = true) @RequestParam("file") MultipartFile file) throws IOException {
+        if (file != null) {
+            List<String> fileTypes = Arrays.asList("png", "jpg", "jpeg", "bmp", "svg", "icon");
+            String suffix = Objects.requireNonNull(file.getOriginalFilename())
+                    .substring(file.getOriginalFilename().lastIndexOf('.') + 1)
+                    .toLowerCase();
+            // 判断文件类型
+            if (fileTypes.contains(suffix)) {
+                // 判断文件大小
+                double fileSize = file.getSize();
+                if (fileSize / (1024 * 1024) > 5) {
+                    return Result.error().setData("mes", "图像不能大于5M");
+                } else {
+                    String url = UploadUtils.uploads(file);
+                    User user = new User();
+                    user.setId(id).setUserIcon(url);
+                    service.updateById(user);
+                    return Result.success().setData("url", url);
+                }
+            }else {
+                return Result.error().setData("mes", "图像格式要为[png, jpg, jpeg, bmp, svg");
+            }
+        }
+        else {
+            return Result.error().setData("mes", "没有选择图片");
+        }
+    }
+
+    @GetMapping("/list")
+    @ApiOperation("获取所有用户")
+    public Result list(){
+        return Result.success().setData("mes", service.list());
     }
 }

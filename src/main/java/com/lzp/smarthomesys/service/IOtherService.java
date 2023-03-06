@@ -11,6 +11,9 @@ import com.lzp.smarthomesys.entity.Other;
  * @author Bright J
  * @since 2023-02-22
  */
-public interface IOtherService extends IService<Other> {
+public interface IOtherService extends IService<Other>, IDeviceService {
 
+    void on(String id);
+
+    void off(String id);
 }

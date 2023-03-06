@@ -1,12 +1,12 @@
-# 已经有的
+# 已有配置
 server:
   port: 8081  # 设置启动端口
 spring:
   datasource:  # 数据源信息
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/smarthomesys?serverTimezone=GMT%2B8 # 47.92.153.40:3306
+    url: jdbc:mysql://www.zzzzzzzzz.shop:3306/smarthomesys?serverTimezone=GMT%2B8 # 47.92.153.40
     username: root
-    password: 123456
+    password: Pwd@123456 # Pwd@123456
   mvc:
     pathmatch:
       matching-strategy: ANT_PATH_MATCHER # swagger3之后需要设置
@@ -16,6 +16,9 @@ spring:
     username: lzpBright@qq.com  # 发送账户
     password: eeddhsgikcntdefe  # 邮箱授权码
     port: 587 # 服务器端口
+  servlet:
+    multipart:
+      max-file-size: 20MB # 上传文件最大为50m
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl # 设置mybatis-plus的log
@@ -27,6 +30,8 @@ mybatis-plus:
       logic-delete-field: deleted # deleted作为逻辑删除辅助字段
       id-type: assign_id  # 对于主键，均采取雪花算法自动生成19位长度
   type-aliases-package: com.lzp.smarthomesys.entity # 取别名，这样xml文件的返回类型只要写一个Student就可以了
+
+# 自定义配置
 onenet:
   accessKey: 9aVh07RAj13tIqQM5FM6bJbB5jJx5a/oJIg7BokHeqc= # 产品的access_key
   productId: 569568 # onenet产品ID
@@ -34,3 +39,7 @@ onenet:
   api_key: eaoh5qproOYKR8cmLoD0ZGLyvhY= # 产品apikey
   device_id: 1037659370 # 设备id
   timeout: 30 # 等待响应时间单位为秒
+images:
+  accessPath: /userIcons/
+  winPath: E:\IDEAProject\SmartHomeSys\src\main\resources\userIcons\
+  linuxPath: /usr/local/files/userIcons/

@@ -9,8 +9,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
-import java.io.Serializable;
-
 /**
  * <p>
  * 其他电器实体类
@@ -24,7 +22,7 @@ import java.io.Serializable;
 @ApiModel(value = "Other对象")
 @AllArgsConstructor
 @NoArgsConstructor
-public class Other {
+public class Other implements IDevice {
 
     @TableId("id")
     @ApiModelProperty("其他电器标识")

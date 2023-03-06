@@ -26,7 +26,6 @@ import java.text.SimpleDateFormat;
  * @author Bright J
  * @since 2023-02-22
  */
-@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/aircon")
 public class AirconController {
@@ -38,14 +37,16 @@ public class AirconController {
     String timeout;
 
     @Resource
-    AirconServiceImpl service;
+    AirconServiceImpl airconService;
 
     @Resource
     LogServiceImpl logService;
 
-    @Resource
-    RoomServiceImpl roomService;
-
+    /**
+     * 开启
+     * @param id 空调id
+     * @return Result
+     */
     @GetMapping("/on")
     @ApiOperation("开启本空调")
     public Result on(@ApiParam(value = "空调标识", required = true) @RequestParam("id") String id){
@@ -53,26 +54,19 @@ public class AirconController {
         JSONObject resJson = JSONObject.parseObject(res);
         Object error = resJson.get("error").toString();
         if (error.equals("succ")) {
-            Aircon aircon = service.getById(id);
-            Room room = roomService.getById(aircon.getRoomId());
-            // aircon 对象
-            aircon.setState(1);
-            service.updateById(aircon);
-            // log 对象
-            String time = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")).format(System.currentTimeMillis());
-            String userId = room.getUserId();
-            String target = "房间: " + room.getPosition() + "|具体位置: "
-                    + aircon.getSmallPos() + "|电器: 空调|电器标识: " + aircon.getId();
-            String action = CmdEnum.AIR_SWITCH_ON.getCmdDesc();
-            Log cmdLog = new Log();
-            cmdLog.setTime(time).setUserId(userId).setTarget(target).setAction(action);
-            logService.save(cmdLog);
+            airconService.on(id);
+            logService.saveCmdLog(airconService.getById(id), CmdEnum.AIR_SWITCH_ON.getCmdDesc());
             return Result.success().setData("res", res);
         }else {
             return Result.error().setData("res", res);
         }
     }
 
+    /**
+     * 关闭
+     * @param id 空调id
+     * @return Result
+     */
     @GetMapping("/off")
     @ApiOperation("关闭本空调")
     public Result off(@ApiParam(value = "空调标识", required = true) @RequestParam("id") String id){
@@ -80,20 +74,8 @@ public class AirconController {
         JSONObject resJson = JSONObject.parseObject(res);
         Object error = resJson.get("error").toString();
         if (error.equals("succ")) {
-            Aircon aircon = service.getById(id);
-            Room room = roomService.getById(aircon.getRoomId());
-            // aircon 对象
-            aircon.setState(0);
-            service.updateById(aircon);
-            // log 对象
-            String time = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")).format(System.currentTimeMillis());
-            String userId = room.getUserId();
-            String target = "房间: " + room.getPosition() + "|具体位置: "
-                    + aircon.getSmallPos() + "|电器: 空调|电器标识: " + aircon.getId();
-            String action = CmdEnum.AIR_SWITCH_OFF.getCmdDesc();
-            Log cmdLog = new Log();
-            cmdLog.setTime(time).setUserId(userId).setTarget(target).setAction(action);
-            logService.save(cmdLog);
+            airconService.off(id);
+            logService.saveCmdLog(airconService.getById(id), CmdEnum.AIR_SWITCH_OFF.getCmdDesc());
             return Result.success().setData("res", res);
         }else {
             return Result.error().setData("res", res);
@@ -101,28 +83,21 @@ public class AirconController {
     }
 
 
+    /**
+     * 自动模式
+     * @param id 空调id
+     * @return Result
+     */
     @GetMapping("/modeAuto")
     @ApiOperation("自动模式")
     public Result modeAuto(@ApiParam(value = "空调标识", required = true) @RequestParam("id") String id){
         String res = DeviceUtils.sendCmd(deviceId, CmdEnum.AIR_MODE_AUTO.getCmdValue(), timeout);
         JSONObject resJson = JSONObject.parseObject(res);
         Object error = resJson.get("error").toString();
-        Aircon aircon = service.getById(id);
-        if (aircon.getState() == 1) {
+        if (airconService.getById(id).getState() == 1) {
             if (error.equals("succ")) {
-                Room room = roomService.getById(aircon.getRoomId());
-                // aircon 对象
-                aircon.setMode("自动");
-                service.updateById(aircon);
-                // log 对象
-                String time = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")).format(System.currentTimeMillis());
-                String userId = room.getUserId();
-                String target = "房间: " + room.getPosition() + "|具体位置: "
-                        + aircon.getSmallPos() + "|电器: 空调|电器标识: " + aircon.getId();
-                String action = CmdEnum.AIR_MODE_AUTO.getCmdDesc();
-                Log cmdLog = new Log();
-                cmdLog.setTime(time).setUserId(userId).setTarget(target).setAction(action);
-                logService.save(cmdLog);
+                airconService.modeAuto(id);
+                logService.saveCmdLog(airconService.getById(id), CmdEnum.AIR_MODE_AUTO.getCmdDesc());
                 return Result.success().setData("res", res);
             } else {
                 return Result.error().setData("res", res);
@@ -133,28 +108,21 @@ public class AirconController {
         }
     }
 
+    /**
+     * 智能模式
+     * @param id 空调id
+     * @return Result
+     */
     @GetMapping("/modeCool")
     @ApiOperation("制冷模式")
     public Result modeCool(@ApiParam(value = "空调标识", required = true) @RequestParam("id") String id){
         String res = DeviceUtils.sendCmd(deviceId, CmdEnum.AIR_MODE_COOL.getCmdValue(), timeout);
         JSONObject resJson = JSONObject.parseObject(res);
         Object error = resJson.get("error").toString();
-        Aircon aircon = service.getById(id);
-        if (aircon.getState() == 1) {
+        if (airconService.getById(id).getState() == 1) {
             if (error.equals("succ")) {
-                Room room = roomService.getById(aircon.getRoomId());
-                // aircon 对象
-                aircon.setMode("制冷");
-                service.updateById(aircon);
-                // log 对象
-                String time = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")).format(System.currentTimeMillis());
-                String userId = room.getUserId();
-                String target = "房间: " + room.getPosition() + "|具体位置: "
-                        + aircon.getSmallPos() + "|电器: 空调|电器标识: " + aircon.getId();
-                String action = CmdEnum.AIR_MODE_COOL.getCmdDesc();
-                Log cmdLog = new Log();
-                cmdLog.setTime(time).setUserId(userId).setTarget(target).setAction(action);
-                logService.save(cmdLog);
+                airconService.modeCool(id);
+                logService.saveCmdLog(airconService.getById(id), CmdEnum.AIR_MODE_COOL.getCmdDesc());
                 return Result.success().setData("res", res);
             } else {
                 return Result.error().setData("res", res);
@@ -165,28 +133,21 @@ public class AirconController {
         }
     }
 
+    /**
+     * 制热模式
+     * @param id 空调id
+     * @return Result
+     */
     @GetMapping("/modeHot")
     @ApiOperation("制热模式")
     public Result modeHot(@ApiParam(value = "空调标识", required = true) @RequestParam("id") String id){
         String res = DeviceUtils.sendCmd(deviceId, CmdEnum.AIR_MODE_HOT.getCmdValue(), timeout);
         JSONObject resJson = JSONObject.parseObject(res);
         Object error = resJson.get("error").toString();
-        Aircon aircon = service.getById(id);
-        if (aircon.getState() == 1) {
+        if (airconService.getById(id).getState() == 1) {
             if (error.equals("succ")) {
-                Room room = roomService.getById(aircon.getRoomId());
-                // aircon 对象
-                aircon.setMode("制热");
-                service.updateById(aircon);
-                // log 对象
-                String time = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")).format(System.currentTimeMillis());
-                String userId = room.getUserId();
-                String target = "房间: " + room.getPosition() + "|具体位置: "
-                        + aircon.getSmallPos() + "|电器: 空调|电器标识: " + aircon.getId();
-                String action = CmdEnum.AIR_MODE_HOT.getCmdDesc();
-                Log cmdLog = new Log();
-                cmdLog.setTime(time).setUserId(userId).setTarget(target).setAction(action);
-                logService.save(cmdLog);
+                airconService.modeHot(id);
+                logService.saveCmdLog(airconService.getById(id), CmdEnum.AIR_MODE_HOT.getCmdDesc());
                 return Result.success().setData("res", res);
             } else {
                 return Result.error().setData("res", res);
@@ -197,28 +158,21 @@ public class AirconController {
         }
     }
 
+    /**
+     * 除湿模式
+     * @param id 空调id
+     * @return Result
+     */
     @GetMapping("/modeDry")
     @ApiOperation("除湿模式")
     public Result modeDry(@ApiParam(value = "空调标识", required = true) @RequestParam("id") String id){
-        String res = DeviceUtils.sendCmd(deviceId, CmdEnum.AIR_MODE_HOT.getCmdValue(), timeout);
+        String res = DeviceUtils.sendCmd(deviceId, CmdEnum.AIR_MODE_DRY.getCmdValue(), timeout);
         JSONObject resJson = JSONObject.parseObject(res);
         Object error = resJson.get("error").toString();
-        Aircon aircon = service.getById(id);
-        if (aircon.getState() == 1) {
+        if (airconService.getById(id).getState() == 1) {
             if (error.equals("succ")) {
-                Room room = roomService.getById(aircon.getRoomId());
-                // aircon 对象
-                aircon.setMode("除湿");
-                service.updateById(aircon);
-                // log 对象
-                String time = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")).format(System.currentTimeMillis());
-                String userId = room.getUserId();
-                String target = "房间: " + room.getPosition() + "|具体位置: "
-                        + aircon.getSmallPos() + "|电器: 空调|电器标识: " + aircon.getId();
-                String action = CmdEnum.AIR_MODE_DRY.getCmdDesc();
-                Log cmdLog = new Log();
-                cmdLog.setTime(time).setUserId(userId).setTarget(target).setAction(action);
-                logService.save(cmdLog);
+                airconService.modeDry(id);
+                logService.saveCmdLog(airconService.getById(id), CmdEnum.AIR_MODE_DRY.getCmdDesc());
                 return Result.success().setData("res", res);
             } else {
                 return Result.error().setData("res", res);
@@ -229,29 +183,21 @@ public class AirconController {
         }
     }
 
+    /**
+     * 节能模式
+     * @param id 空调id
+     * @return Result
+     */
     @GetMapping("/modeEcono")
     @ApiOperation("节能模式")
     public Result modeEcono(@ApiParam(value = "空调标识", required = true) @RequestParam("id") String id) {
         String res = DeviceUtils.sendCmd(deviceId, CmdEnum.AIR_MODE_Econo.getCmdValue(), timeout);
         JSONObject resJson = JSONObject.parseObject(res);
         Object error = resJson.get("error").toString();
-        Aircon aircon = service.getById(id);
-        if (aircon.getState() == 1) {
+        if (airconService.getById(id).getState() == 1) {
             if (error.equals("succ")) {
-
-                Room room = roomService.getById(aircon.getRoomId());
-                // aircon 对象
-                aircon.setMode("节能");
-                service.updateById(aircon);
-                // log 对象
-                String time = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")).format(System.currentTimeMillis());
-                String userId = room.getUserId();
-                String target = "房间: " + room.getPosition() + "|具体位置: "
-                        + aircon.getSmallPos() + "|电器: 空调|电器标识: " + aircon.getId();
-                String action = CmdEnum.AIR_MODE_Econo.getCmdDesc();
-                Log cmdLog = new Log();
-                cmdLog.setTime(time).setUserId(userId).setTarget(target).setAction(action);
-                logService.save(cmdLog);
+                airconService.modeEcono(id);
+                logService.saveCmdLog(airconService.getById(id), CmdEnum.AIR_MODE_Econo.getCmdDesc());
                 return Result.success().setData("res", res);
             } else {
                 return Result.error().setData("res", res);
@@ -262,6 +208,12 @@ public class AirconController {
         }
     }
 
+    /**
+     * 设置温度
+     * @param id 空调id
+     * @param temperature 目标温度
+     * @return Result
+     */
     @GetMapping("/temper")
     @ApiOperation("设置温度(硬件方尚有bug)")
     public Result temper(@ApiParam(value = "空调标识", required = true) @RequestParam("id") String id,
@@ -270,22 +222,11 @@ public class AirconController {
             String res = DeviceUtils.sendCmd(deviceId, CmdEnum.AIR_SET_TEMP_.getCmdValue() + temperature, timeout);
             JSONObject resJson = JSONObject.parseObject(res);
             Object error = resJson.get("error").toString();
-            Aircon aircon = service.getById(id);
+            Aircon aircon = airconService.getById(id);
             if (aircon.getState() == 1) {
                 if (error.equals("succ")) {
-                    Room room = roomService.getById(aircon.getRoomId());
-                    // aircon 对象
-                    aircon.setTemper(Integer.parseInt(temperature));
-                    service.updateById(aircon);
-                    // log 对象
-                    String time = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")).format(System.currentTimeMillis());
-                    String userId = room.getUserId();
-                    String target = "房间: " + room.getPosition() + "|具体位置: "
-                            + aircon.getSmallPos() + "|电器: 空调|电器标识: " + aircon.getId();
-                    String action = CmdEnum.AIR_SET_TEMP_.getCmdDesc() + "为" + temperature;
-                    Log cmdLog = new Log();
-                    cmdLog.setTime(time).setUserId(userId).setTarget(target).setAction(action);
-                    logService.save(cmdLog);
+                    airconService.temper(id, temperature);
+                    logService.saveCmdLog(airconService.getById(id), CmdEnum.AIR_SET_TEMP_.getCmdDesc() + "为" + temperature);
                     return Result.success().setData("res", res);
                 } else {
                     return Result.error().setData("res", res);
@@ -300,6 +241,12 @@ public class AirconController {
     }
 
 
+    /**
+     * 设置风速
+     * @param id 空调id
+     * @param speed 目标风速
+     * @return Result
+     */
     @GetMapping("/windSpeed")
     @ApiOperation("设置风速(硬件方尚有bug)")
     public Result windSpeed(@ApiParam(value = "空调标识", required = true) @RequestParam("id") String id,
@@ -308,22 +255,11 @@ public class AirconController {
             String res = DeviceUtils.sendCmd(deviceId, CmdEnum.AIR_SET_FUN_.getCmdValue() + speed, timeout);
             JSONObject resJson = JSONObject.parseObject(res);
             Object error = resJson.get("error").toString();
-            Aircon aircon = service.getById(id);
+            Aircon aircon = airconService.getById(id);
             if (aircon.getState() == 1) {
                 if (error.equals("succ")) {
-                    Room room = roomService.getById(aircon.getRoomId());
-                    // aircon 对象
-                    aircon.setWindSpeed(speed);
-                    service.updateById(aircon);
-                    // log 对象
-                    String time = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")).format(System.currentTimeMillis());
-                    String userId = room.getUserId();
-                    String target = "房间: " + room.getPosition() + "|具体位置: "
-                            + aircon.getSmallPos() + "|电器: 空调|电器标识: " + aircon.getId();
-                    String action = CmdEnum.AIR_SET_FUN_.getCmdDesc() + "为" + speed;
-                    Log cmdLog = new Log();
-                    cmdLog.setTime(time).setUserId(userId).setTarget(target).setAction(action);
-                    logService.save(cmdLog);
+                    airconService.windSpeed(id, speed);
+                    logService.saveCmdLog(airconService.getById(id), CmdEnum.AIR_SWITCH_ON.getCmdDesc() + "为" + speed);
                     return Result.success().setData("res", res);
                 } else {
                     return Result.error().setData("res", res);
@@ -334,6 +270,31 @@ public class AirconController {
             }
         }else {
             return Result.error().setData("mes", "风速范围为0~4");
+        }
+    }
+
+    /**
+     * 修改空调基本信息
+     * @param id 空调标识
+     * @param power 修改的功率
+     * @return Result
+     */
+    @PutMapping("modify")
+    @ApiOperation("修改空调基本信息[所说的基本信息是那种不是必要的信息，这里表现的就是功率，其他信息不允许修改仅仅允许删除之后增加]")
+    public Result modify(@ApiParam(value = "空调标识", required = true) @RequestParam("id") String id,
+                         @ApiParam(value = "额定功率单位为w") @RequestParam(value = "power", required = false) String power){
+        if (power != null) {
+            if (airconService.getById(id) != null) {
+                Aircon aircon = new Aircon();
+                aircon.setId(id).setPower(power);
+                airconService.updateById(aircon);
+                return Result.success().setData("mes", "修改成功");
+            }else {
+                return Result.error().setData("mes", "没有找到标识为" + id + "的空调");
+            }
+        }
+        else {
+            return Result.error().setData("mes", "没有任何修改");
         }
     }
 }

@@ -26,7 +26,6 @@ import java.text.SimpleDateFormat;
  * @author Bright J
  * @since 2023-02-22
  */
-@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/other")
 public class OtherController {
@@ -34,17 +33,14 @@ public class OtherController {
     @Resource
     OtherServiceImpl otherService;
 
+    @Resource
+    LogServiceImpl logService;
+
     @Value("${onenet.device_id}")
     String deviceId;
 
     @Value("${onenet.timeout}")
     String timeout;
-
-    @Resource
-    LogServiceImpl logService;
-
-    @Resource
-    RoomServiceImpl roomService;
 
     @GetMapping("/on")
     @ApiOperation("开启其他电器(硬件方尚未实现)")
@@ -53,20 +49,8 @@ public class OtherController {
         JSONObject resJson = JSONObject.parseObject(res);
         Object error = resJson.get("error").toString();
         if (error.equals("succ")) {
-            Other other = otherService.getById(id);
-            Room room = roomService.getById(other.getRoomId());
-            // other 对象
-            other.setState(1);
-            otherService.updateById(other);
-            // log 对象
-            String time = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")).format(System.currentTimeMillis());
-            String userId = room.getUserId();
-            String target = "房间: " + room.getPosition() + "|具体位置: "
-                    + other.getSmallPos() + "|电器: 其他电器|电器标识: " + other.getId();
-            String action = CmdEnum.OTHER_SWITCH_ON.getCmdDesc();
-            Log cmdLog = new Log();
-            cmdLog.setTime(time).setUserId(userId).setTarget(target).setAction(action);
-            logService.save(cmdLog);
+            otherService.on(id);
+            logService.saveCmdLog(otherService.getById(id), CmdEnum.OTHER_SWITCH_ON.getCmdDesc());
             return Result.success().setData("res", res);
         }else {
             return Result.error().setData("res", res);
@@ -80,20 +64,8 @@ public class OtherController {
         JSONObject resJson = JSONObject.parseObject(res);
         Object error = resJson.get("error").toString();
         if (error.equals("succ")) {
-            Other other = otherService.getById(id);
-            Room room = roomService.getById(other.getRoomId());
-            // light 对象
-            other.setState(0);
-            otherService.updateById(other);
-            // log 对象
-            String time = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")).format(System.currentTimeMillis());
-            String userId = room.getUserId();
-            String target = "房间: " + room.getPosition() + "|具体位置: "
-                    + other.getSmallPos() + "|电器: 其他电器|电器标识: " + other.getId();
-            String action = CmdEnum.OTHER_SWITCH_OFF.getCmdDesc();
-            Log cmdLog = new Log();
-            cmdLog.setTime(time).setUserId(userId).setTarget(target).setAction(action);
-            logService.save(cmdLog);
+            otherService.off(id);
+            logService.saveCmdLog(otherService.getById(id), CmdEnum.OTHER_SWITCH_OFF.getCmdDesc());
             return Result.success().setData("res", res);
         }else {
             return Result.error().setData("res", res);

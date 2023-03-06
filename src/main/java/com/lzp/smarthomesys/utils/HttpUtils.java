@@ -22,9 +22,9 @@ import java.util.Map;
 public class HttpUtils {
     /**
      * use: 用来对关闭流的封装
-     * @param response
-     * @param httpRequestBase
-     * @param httpClient
+     * @param response response
+     * @param httpRequestBase httpRequestBase
+     * @param httpClient httpClient
      */
     public static void close(CloseableHttpResponse response, HttpRequestBase httpRequestBase, CloseableHttpClient httpClient){
         try {
@@ -129,7 +129,7 @@ public class HttpUtils {
      * @param url 定位符
      * @param headers 请求头
      * @param params 参数
-     * @return
+     * @return params
      */
     public static String sendPostJson(String url, Map<String, String> headers, Map<String,String> params){
         CloseableHttpClient httpClient = null;

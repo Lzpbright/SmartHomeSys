@@ -1,8 +1,14 @@
 package com.lzp.smarthomesys.controller;
 
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.lzp.smarthomesys.entity.Log;
+import com.lzp.smarthomesys.service.impl.LogServiceImpl;
+import com.lzp.smarthomesys.utils.Result;
+import io.swagger.annotations.ApiOperation;
+import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <p>
@@ -12,9 +18,21 @@ import org.springframework.web.bind.annotation.RestController;
  * @author Bright J
  * @since 2023-02-22
  */
-@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping("/smarthomesys/log")
+@RequestMapping("/log")
 public class LogController {
 
+    @Resource
+    LogServiceImpl logService;
+    @GetMapping("/getAll")
+    @ApiOperation("获取所有日志")
+    public Result getAll(){
+        List<Log> list = new ArrayList<>();
+        try {
+            list = logService.list();
+        }catch (Exception e){
+            return Result.error().setData("mes", e);
+        }
+        return Result.success().setData("allLog", list);
+    }
 }

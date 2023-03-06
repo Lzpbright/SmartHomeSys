@@ -9,8 +9,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
-import java.io.Serializable;
-
 /**
  * <p>
  * 灯实体类
@@ -24,7 +22,7 @@ import java.io.Serializable;
 @ApiModel(value = "Light对象")
 @AllArgsConstructor
 @NoArgsConstructor
-public class Light {
+public class Light implements IDevice {
 
     @TableId("id")
     @ApiModelProperty("灯标识")

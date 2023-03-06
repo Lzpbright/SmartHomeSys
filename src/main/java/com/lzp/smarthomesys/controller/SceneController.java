@@ -1,15 +1,14 @@
 package com.lzp.smarthomesys.controller;
 
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.lzp.smarthomesys.entity.Room;
-import com.lzp.smarthomesys.entity.Scene;
-import com.lzp.smarthomesys.service.impl.RoomServiceImpl;
-import com.lzp.smarthomesys.service.impl.SceneServiceImpl;
+import com.lzp.smarthomesys.entity.*;
+import com.lzp.smarthomesys.service.impl.*;
 import com.lzp.smarthomesys.utils.Result;
+import com.lzp.smarthomesys.utils.SceneUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -23,24 +22,48 @@ import java.util.*;
  * @author Bright J
  * @since 2023-02-22
  */
-@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/scene")
 @Api("场景控制器")
 public class SceneController {
 
+    @Value("${onenet.device_id}")
+    String deviceId;
+
+    @Value("${onenet.timeout}")
+    String timeout;
+
     @Resource
-    SceneServiceImpl service;
+    SceneServiceImpl sceneService;
 
     @Resource
     RoomServiceImpl roomService;
+
+    @Resource
+    UserServiceImpl userService;
+
+    @Resource
+    AirconServiceImpl airconService;
+
+    @Resource
+    LightServiceImpl lightService;
+
+    @Resource
+    LockServiceImpl lockService;
+
+    @Resource
+    OtherServiceImpl otherService;
+
+    @Resource
+    LogServiceImpl logService;
+
 
     @GetMapping("/getByRoomId")
     @ApiOperation("用房间标识获取场景")
     public Result getByRoomId(@ApiParam(value = "房间标识", required = true) @RequestParam("roomId") String roomId){
         LambdaQueryWrapper<Scene> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(Scene::getRoomId, roomId);
-        List<Scene> scenes = service.list(wrapper);
+        List<Scene> scenes = sceneService.list(wrapper);
         return Result.success().setData("scenes", scenes);
     }
 
@@ -48,19 +71,20 @@ public class SceneController {
     @ApiOperation("添加场景")
     public Result add(@ApiParam(value = "房间标识", required = true) @RequestParam("roomId") String roomId,
                            @ApiParam(value = "场景介绍", required = true) @RequestParam("intro") String intro,
-                           @ApiParam(value = "相关电器(格式:X(light)A(light标识标识);Y(lock)B(lock标识),表示该场景开启A,B,C三电器, 其他电器均关闭)")
+                           @ApiParam(value = "相关电器(格式:X(灯泡),A(灯泡标识);Y(门锁),B(门锁标识)...【!!电器类型仅有空调、灯泡、门锁、其他】,表示该场景开启A,B,C三电器, 其他电器均关闭)")
                                @RequestParam(value = "appliance", required = false) String appliance){
         Room room = roomService.getById(roomId);
         if (room != null) {
             LambdaQueryWrapper<Scene> wrapper = new LambdaQueryWrapper<>();
             wrapper.eq(Scene::getIntro, intro).eq(Scene::getRoomId, roomId);
-            List<Scene> list = service.list(wrapper);
+            List<Scene> list = sceneService.list(wrapper);
             if (list.size() == 0) {
                 Scene scene = new Scene();
                 scene.setRoomId(roomId);
                 scene.setIntro(intro);
+                appliance = appliance.replace(" ", "");
                 scene.setAppliance(appliance);
-                service.save(scene);
+                sceneService.save(scene);
                 return Result.success().setData("mes", "添加成功");
             } else {
                 return Result.error().setData("mes", "同一房间不能存在相同场景名");
@@ -74,24 +98,25 @@ public class SceneController {
     @ApiOperation("修改或增加电器")
     public Result modify(@ApiParam(value = "场景标识", required = true) @RequestParam("id") String id,
                          @ApiParam(value = "场景介绍（就是场景的名字）") @RequestParam(value = "intro", required = false) String intro,
-                         @ApiParam(value = "相关电器(格式:X(light)A(light标识标识);Y(lock)B(lock标识),表示该场景开启A,B,C三电器, 其他电器均关闭)") @RequestParam(value = "appliance", required = false) String appliance){
+                         @ApiParam(value = "相关电器(格式:X(灯泡),A(灯泡标识);Y(门锁),B(门锁标识)...【!!电器类型仅有空调、灯泡、门锁、其他】,表示该场景开启A,B,C三电器, 其他电器均关闭)") @RequestParam(value = "appliance", required = false) String appliance){
         Scene scene = new Scene();
         scene.setId(id);
         if (!Objects.equals(intro, "")) {
             scene.setIntro(intro);
         }
+        appliance = appliance.replace(" ", "");
         scene.setAppliance(appliance);
-        service.updateById(scene);
+        sceneService.updateById(scene);
         return Result.success().setData("mes", "修改成功");
     }
 
     @GetMapping("/devices")
     @ApiOperation("获取场景所有电器")
     public Result modify(@ApiParam(value = "场景标识", required = true) @RequestParam(value = "id") String id){
-        Scene scene = service.getById(id);
+        Scene scene = sceneService.getById(id);
         String appliance = scene.getAppliance();
 
-        String[] all = appliance.split(";");
+        String[]all = appliance.split(";");
 
         List<String> devices = new ArrayList<>();
 
@@ -100,5 +125,111 @@ public class SceneController {
             devices.add(single[0] + ":" + single[1]);
         }
         return Result.success().setData("devices", devices);
+    }
+
+    @GetMapping("/on")
+    @ApiOperation("开启本场景")
+    public Result on(@ApiParam(value = "场景标识", required = true) @RequestParam(value = "id") String id){
+        Scene scene = sceneService.getById(id);
+        if (scene != null) {
+            if (scene.getState() == 0) {
+                // 获取userId,从而获得user所有的电器
+                Room theRoom = roomService.getById(scene.getRoomId());
+                User user = userService.getById(theRoom.getUserId());
+                String userId = user.getId();
+
+                // 一些所需中间变量
+                String appliances = scene.getAppliance();
+
+                // 遍历用户所有的电器并进行响应操作
+                LambdaQueryWrapper<Room> roomWrapper = new LambdaQueryWrapper<>();
+                roomWrapper.eq(Room::getUserId, userId);
+                List<Room> rooms = roomService.list(roomWrapper);
+
+                Map<Object, Object> result = new HashMap<>();
+                for (Room room : rooms) {
+                    LambdaQueryWrapper<Aircon> airconWrapper = new LambdaQueryWrapper<>();
+                    LambdaQueryWrapper<Light> lightWrapper = new LambdaQueryWrapper<>();
+                    LambdaQueryWrapper<Lock> lockWrapper = new LambdaQueryWrapper<>();
+                    LambdaQueryWrapper<Other> otherWrapper = new LambdaQueryWrapper<>();
+                    airconWrapper.eq(Aircon::getRoomId, room.getId());
+                    lightWrapper.eq(Light::getRoomId, room.getId());
+                    lockWrapper.eq(Lock::getRoomId, room.getId());
+                    otherWrapper.eq(Other::getRoomId, room.getId());
+                    List<Aircon> airconList = airconService.list(airconWrapper);
+                    List<Light> lightList = lightService.list(lightWrapper);
+                    List<Lock> lockList = lockService.list(lockWrapper);
+                    List<Other> otherList = otherService.list(otherWrapper);
+
+                    List<IDevice> deviceList = new ArrayList<>();
+                    deviceList.addAll(airconList);
+                    deviceList.addAll(lightList);
+                    deviceList.addAll(lockList);
+                    deviceList.addAll(otherList);
+                    result.put("房间" + room.getId(), SceneUtils.onOrOff(id, deviceList, appliances, "开启"));
+                }
+                result.put("场景电器", appliances);
+                scene.setState(1);
+                sceneService.updateById(scene);
+                return Result.success().setData("result", result);
+            } else {
+                return Result.success().setData("mes", "标识为" + id + "的场景已开");
+            }
+        }else{
+            return Result.error().setData("mes", "没有找到标识为" + id + "的场景");
+        }
+    }
+
+    @GetMapping("/off")
+    @ApiOperation("关闭本场景")
+    public Result off(@ApiParam(value = "场景标识", required = true) @RequestParam(value = "id") String id){
+        Scene scene = sceneService.getById(id);
+        if (scene != null) {
+            if (scene.getState() == 1) {
+                // 获取userId,从而获得user所有的电器
+                Room theRoom = roomService.getById(scene.getRoomId());
+                User user = userService.getById(theRoom.getUserId());
+                String userId = user.getId();
+
+                // 一些所需中间变量
+                String appliances = scene.getAppliance();
+
+                // 遍历用户所有的电器并进行响应操作
+                LambdaQueryWrapper<Room> roomWrapper = new LambdaQueryWrapper<>();
+                roomWrapper.eq(Room::getUserId, userId);
+                List<Room> rooms = roomService.list(roomWrapper);
+
+                Map<Object, Object> result = new HashMap<>();
+                for (Room room : rooms) {
+                    LambdaQueryWrapper<Aircon> airconWrapper = new LambdaQueryWrapper<>();
+                    LambdaQueryWrapper<Light> lightWrapper = new LambdaQueryWrapper<>();
+                    LambdaQueryWrapper<Lock> lockWrapper = new LambdaQueryWrapper<>();
+                    LambdaQueryWrapper<Other> otherWrapper = new LambdaQueryWrapper<>();
+                    airconWrapper.eq(Aircon::getRoomId, room.getId());
+                    lightWrapper.eq(Light::getRoomId, room.getId());
+                    lockWrapper.eq(Lock::getRoomId, room.getId());
+                    otherWrapper.eq(Other::getRoomId, room.getId());
+                    List<Aircon> airconList = airconService.list(airconWrapper);
+                    List<Light> lightList = lightService.list(lightWrapper);
+                    List<Lock> lockList = lockService.list(lockWrapper);
+                    List<Other> otherList = otherService.list(otherWrapper);
+
+                    List<IDevice> deviceList = new ArrayList<>();
+                    deviceList.addAll(airconList);
+                    deviceList.addAll(lightList);
+                    deviceList.addAll(lockList);
+                    deviceList.addAll(otherList);
+                    result.put("房间" + room.getId(), SceneUtils.onOrOff(id, deviceList, appliances, "关闭"));
+                }
+                result.put("场景电器", appliances);
+                scene.setState(0);
+                sceneService.updateById(scene);
+                return Result.success().setData("result", result);
+            } else {
+                return Result.success().setData("mes", "标识为" + id + "的场景已关");
+            }
+        }else{
+            return Result.error().setData("mes", "没有找到标识为" + id + "的场景");
+        }
     }
 }

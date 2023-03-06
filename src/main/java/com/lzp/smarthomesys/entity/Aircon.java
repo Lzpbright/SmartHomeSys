@@ -9,8 +9,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
-import java.io.Serializable;
-
 /**
  * <p>
  * 空调实体类
@@ -24,7 +22,7 @@ import java.io.Serializable;
 @ApiModel(value = "Aircon对象")
 @AllArgsConstructor
 @NoArgsConstructor
-public class Aircon {
+public class Aircon implements IDevice {
 
     @TableId("id")
     @ApiModelProperty("空调标识")

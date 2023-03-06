@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.lzp</groupId>
 	<artifactId>SmartHomeSys</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0-SNAPSHOT</version>
 	<name>SmartHomeSys</name>
 	<description>SmartHomeSys</description>
 	<properties>

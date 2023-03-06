@@ -31,7 +31,12 @@ public enum CmdEnum {
     // 其他电器
 
     OTHER_SWITCH_ON("OTHER_SWITCH_ON", "其他电器开"),
-    OTHER_SWITCH_OFF("OTHER_SWITCH_OFF", "其他电器关");
+    OTHER_SWITCH_OFF("OTHER_SWITCH_OFF", "其他电器关"),
+
+    // 门锁
+
+    LOCK_SWITCH_ON("LOCK_SWITCH_ON", "门锁开"),
+    LOCK_SWITCH_OFF("LOCK_SWITCH_OFF", "门锁关");
 
 
     CmdEnum(String cmdValue, String cmdDesc){

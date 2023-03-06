@@ -2,6 +2,7 @@ package com.lzp.smarthomesys.mapper;
 
 import com.lzp.smarthomesys.entity.Aircon;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.springframework.stereotype.Repository;
 
 /**
  * <p>
@@ -11,6 +12,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @author Bright J
  * @since 2023-02-22
  */
+@Repository
 public interface AirconMapper extends BaseMapper<Aircon> {
 
 }

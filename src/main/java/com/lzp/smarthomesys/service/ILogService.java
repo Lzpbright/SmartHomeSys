@@ -1,6 +1,7 @@
 package com.lzp.smarthomesys.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.lzp.smarthomesys.entity.IDevice;
 import com.lzp.smarthomesys.entity.Log;
 
 /**
@@ -13,4 +14,5 @@ import com.lzp.smarthomesys.entity.Log;
  */
 public interface ILogService extends IService<Log> {
 
+    void saveCmdLog(IDevice device, String action);
 }

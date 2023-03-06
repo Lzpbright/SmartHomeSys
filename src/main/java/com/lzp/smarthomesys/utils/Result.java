@@ -1,5 +1,6 @@
 package com.lzp.smarthomesys.utils;
 
+import com.lzp.smarthomesys.enums.ResultCode;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -23,7 +24,7 @@ public class Result {
     public static Result success(){
         return new Result()
                 .setIsSuccess(true)
-                .setCode(ResultCode.SUCCESS)
+                .setCode(ResultCode.SUCCESS.getResultValue())
                 .setMessage("操作成功")
                 .setData(new HashMap<>());
     }
@@ -32,7 +33,7 @@ public class Result {
     public static Result error(){
         return new Result()
                 .setIsSuccess(false)
-                .setCode(ResultCode.ERROR)
+                .setCode(ResultCode.ERROR.getResultValue())
                 .setMessage("操作失败")
                 .setData(new HashMap<>());
     }

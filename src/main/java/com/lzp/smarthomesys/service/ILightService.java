@@ -11,6 +11,11 @@ import com.lzp.smarthomesys.entity.Light;
  * @author Bright J
  * @since 2023-02-22
  */
-public interface ILightService extends IService<Light> {
+public interface ILightService extends IService<Light>, IDeviceService {
 
+    void on(String id);
+
+    void off(String id);
+
+    void intensity(String id, String value);
 }

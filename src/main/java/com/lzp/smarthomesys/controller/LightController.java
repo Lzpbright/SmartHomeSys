@@ -26,7 +26,6 @@ import java.text.SimpleDateFormat;
  * @author Bright J
  * @since 2023-02-22
  */
-@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/light")
 public class LightController {
@@ -34,17 +33,14 @@ public class LightController {
     @Resource
     LightServiceImpl lightService;
 
+    @Resource
+    LogServiceImpl logService;
+
     @Value("${onenet.device_id}")
     String deviceId;
 
     @Value("${onenet.timeout}")
     String timeout;
-
-    @Resource
-    LogServiceImpl logService;
-
-    @Resource
-    RoomServiceImpl roomService;
 
     @GetMapping("/on")
     @ApiOperation("开启灯泡(硬件方尚未实现)")
@@ -53,20 +49,8 @@ public class LightController {
         JSONObject resJson = JSONObject.parseObject(res);
         Object error = resJson.get("error").toString();
         if (error.equals("succ")) {
-            Light light = lightService.getById(id);
-            Room room = roomService.getById(light.getRoomId());
-            // light 对象
-            light.setState(1);
-            lightService.updateById(light);
-            // log 对象
-            String time = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")).format(System.currentTimeMillis());
-            String userId = room.getUserId();
-            String target = "房间: " + room.getPosition() + "|具体位置: "
-                    + light.getSmallPos() + "|电器: 灯泡|电器标识: " + light.getId();
-            String action = CmdEnum.LIGHT_SWITCH_ON.getCmdDesc();
-            Log cmdLog = new Log();
-            cmdLog.setTime(time).setUserId(userId).setTarget(target).setAction(action);
-            logService.save(cmdLog);
+            lightService.on(id);
+            logService.saveCmdLog(lightService.getById(id), CmdEnum.LIGHT_SWITCH_ON.getCmdDesc());
             return Result.success().setData("res", res);
         }else {
             return Result.error().setData("res", res);
@@ -80,26 +64,20 @@ public class LightController {
         JSONObject resJson = JSONObject.parseObject(res);
         Object error = resJson.get("error").toString();
         if (error.equals("succ")) {
-            Light light = lightService.getById(id);
-            Room room = roomService.getById(light.getRoomId());
-            // light 对象
-            light.setState(0);
-            lightService.updateById(light);
-            // log 对象
-            String time = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")).format(System.currentTimeMillis());
-            String userId = room.getUserId();
-            String target = "房间: " + room.getPosition() + "|具体位置: "
-                    + light.getSmallPos() + "|电器: 灯泡|电器标识: " + light.getId();
-            String action = CmdEnum.LIGHT_SWITCH_OFF.getCmdDesc();
-            Log cmdLog = new Log();
-            cmdLog.setTime(time).setUserId(userId).setTarget(target).setAction(action);
-            logService.save(cmdLog);
+            lightService.off(id);
+            logService.saveCmdLog(lightService.getById(id), CmdEnum.LIGHT_SWITCH_OFF.getCmdDesc());
             return Result.success().setData("res", res);
         }else {
             return Result.error().setData("res", res);
         }
     }
 
+    /**
+     * 设置灯泡亮度
+     * @param id 灯泡标识
+     * @param value 预设计亮度
+     * @return Result
+     */
     @GetMapping("/intensity")
     @ApiOperation("设置亮度(硬件方尚未实现)")
     public Result intensity(@ApiParam(value = "灯泡标识", required = true) @RequestParam("id") String id,
@@ -111,19 +89,8 @@ public class LightController {
             Light light = lightService.getById(id);
             if (light.getState() == 1) {
                 if (error.equals("succ")) {
-                    Room room = roomService.getById(light.getRoomId());
-                    // light 对象
-                    light.setIntensity(Integer.parseInt(value));
-                    lightService.updateById(light);
-                    // log 对象
-                    String time = (new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")).format(System.currentTimeMillis());
-                    String userId = room.getUserId();
-                    String target = "房间: " + room.getPosition() + "|具体位置: "
-                            + light.getSmallPos() + "|电器: 灯泡|电器标识: " + light.getId();
-                    String action = CmdEnum.LIGHT_SET_INTENSITY_.getCmdDesc() + "为" + value;
-                    Log cmdLog = new Log();
-                    cmdLog.setTime(time).setUserId(userId).setTarget(target).setAction(action);
-                    logService.save(cmdLog);
+                    lightService.intensity(id, value);
+                    logService.saveCmdLog(lightService.getById(id), CmdEnum.LIGHT_SET_INTENSITY_.getCmdDesc() + "为" + value);
                     return Result.success().setData("res", res);
                 } else {
                     return Result.error().setData("res", res);
@@ -134,6 +101,33 @@ public class LightController {
             }
         }else {
             return Result.error().setData("mes", "亮度范围为0~100");
+        }
+    }
+
+    /**
+     * 修改灯泡基本信息
+     * @param id 灯泡标识
+     * @param power 额定功率
+     * @param kind 灯泡类别
+     * @param color 灯泡颜色
+     * @return Result
+     */
+    @PutMapping("/modify")
+    @ApiOperation("修改灯泡基本信息")
+    public Result modify(@ApiParam(value = "灯泡标识", required = true) @RequestParam("id") String id,
+                         @ApiParam(value = "额定功率") @RequestParam(value = "power", required = false) String power,
+                         @ApiParam(value = "灯泡种类") @RequestParam(value = "kind", required = false) String kind,
+                         @ApiParam(value = "灯泡颜色") @RequestParam(value = "color", required = false) String color){
+        if (lightService.getById(id) != null){
+            Light light = new Light();
+            light.setId(id);
+            if (power != null) light.setPower(power);
+            if (kind != null) light.setKind(kind);
+            if (color != null) light.setColor(color);
+            lightService.updateById(light);
+            return Result.success().setData("mes", "修改成功");
+        }else {
+            return Result.error().setData("mes", "没有找到标识为" + id + "的灯泡");
         }
     }
 }

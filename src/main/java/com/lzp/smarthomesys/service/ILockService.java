@@ -11,6 +11,9 @@ import com.lzp.smarthomesys.entity.Lock;
  * @author Bright J
  * @since 2023-02-22
  */
-public interface ILockService extends IService<Lock> {
+public interface ILockService extends IService<Lock>, IDeviceService {
 
+    void on(String id);
+
+    void off(String id);
 }
