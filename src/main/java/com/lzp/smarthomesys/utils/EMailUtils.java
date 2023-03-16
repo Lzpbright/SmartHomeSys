@@ -32,6 +32,13 @@ public class EMailUtils {
         eMailUtils.account = this.account;
     }
 
+    /**
+     * 发送邮件
+     * @param subject 邮件主题
+     * @param to 发送目的邮箱
+     * @param content 内容
+     * @param isHtml 是否发送html内容
+     */
     public static void send(String subject, String to, String content, boolean isHtml){
         JavaMailSender javaMailSender = eMailUtils.javaMailSender;  // 使用本类维护的静态变量
         String account = eMailUtils.account;

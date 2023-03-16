@@ -4,7 +4,7 @@ server:
 spring:
   datasource:  # 数据源信息
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://www.zzzzzzzzz.shop:3306/smarthomesys?serverTimezone=GMT%2B8 # 47.92.153.40
+    url: jdbc:mysql://47.92.153.40:3306/smarthomesys?serverTimezone=GMT%2B8 # 47.92.153.40
     username: root
     password: Pwd@123456 # Pwd@123456
   mvc:
@@ -18,7 +18,7 @@ spring:
     port: 587 # 服务器端口
   servlet:
     multipart:
-      max-file-size: 20MB # 上传文件最大为50m
+      max-file-size: 20MB # 上传文件最大为50MB
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl # 设置mybatis-plus的log
@@ -40,6 +40,6 @@ onenet:
   device_id: 1037659370 # 设备id
   timeout: 30 # 等待响应时间单位为秒
 images:
-  accessPath: /userIcons/
-  winPath: E:\IDEAProject\SmartHomeSys\src\main\resources\userIcons\
-  linuxPath: /usr/local/files/userIcons/
+  accessPath: /userIcons/ # 访问头像的虚拟路径
+  winPath: E:\IDEAProject\SmartHomeSys\src\main\resources\userIcons\ # win系统的头像真实路径
+  linuxPath: /usr/local/files/userIcons/ # linux系统头衔真实路径

@@ -34,6 +34,10 @@ public class LightServiceImpl extends ServiceImpl<LightMapper, Light> implements
     private RoomMapper roomMapper;
 
 
+    /**
+     * 通过标识开启灯泡
+     * @param id 标识
+     */
     @Override
     public void on(String id) {
         Light light = lightMapper.selectById(id);
@@ -43,6 +47,10 @@ public class LightServiceImpl extends ServiceImpl<LightMapper, Light> implements
         lightMapper.updateById(light);
     }
 
+    /**
+     * 通过标识关闭空调
+     * @param id 标识
+     */
     @Override
     public void off(String id) {
         Light light = lightMapper.selectById(id);
@@ -52,11 +60,21 @@ public class LightServiceImpl extends ServiceImpl<LightMapper, Light> implements
         lightMapper.updateById(light);
     }
 
+    /**
+     * 仅仅就是实现接口,通过标识获取对象
+     * @param id 标识
+     * @return IDevice
+     */
     @Override
     public IDevice myGetById(String id) {
         return lightMapper.selectById(id);
     }
 
+    /**
+     * 通过id设置灯泡亮度
+     * @param id 标识
+     * @param value 亮度
+     */
     @Override
     public void intensity(String id, String value) {
         Light light = lightMapper.selectById(id);

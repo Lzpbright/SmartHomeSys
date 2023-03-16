@@ -33,6 +33,12 @@ public class UploadUtils {
         uploadUtils.accessPath = this.accessPath;
     }
 
+    /**
+     * 上传头像
+     * @param file 头像文件
+     * @return 头像存储路径
+     * @throws IOException 输入输出异常
+     */
     public static String uploads(MultipartFile file) throws IOException {
         String winPath = uploadUtils.winPath;
         String linuxPath = uploadUtils.linuxPath;

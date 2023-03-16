@@ -17,7 +17,7 @@ public enum CmdEnum {
     AIR_MODE_AUTO("AIR_MODE_AUTO", "自动模式"),
     AIR_MODE_COOL("AIR_MODE_COOL", "制冷模式"),
     AIR_MODE_HOT("AIR_MODE_HOT", "制热模式"),
-    AIR_MODE_DRY("AIR_MODE_DRY", "除湿模式"),
+    AIR_MODE_DRY("AIR_MODE_DRY", "通风模式"),
     AIR_MODE_Econo("AIR_MODE_Econo", "节能模式"),
 
     // 灯泡
@@ -39,6 +39,11 @@ public enum CmdEnum {
     LOCK_SWITCH_OFF("LOCK_SWITCH_OFF", "门锁关");
 
 
+    /**
+     * 构造函数
+     * @param cmdValue 枚举值
+     * @param cmdDesc 枚举描述
+     */
     CmdEnum(String cmdValue, String cmdDesc){
         this.cmdValue = cmdValue;
         this.cmdDesc = cmdDesc;

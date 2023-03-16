@@ -46,6 +46,14 @@ public class SceneUtils {
         sceneUtils.logService = this.logService;
     }
 
+    /**
+     * 开启或者关闭场景
+     * @param id 场景标识
+     * @param deviceList 设备列表
+     * @param appliances 场景电器
+     * @param strategy 开或者关
+     * @return
+     */
     public static Map<Object, Object> onOrOff(String id, List<IDevice> deviceList, String appliances, String strategy){
         String deviceId = sceneUtils.deviceId;
         String timeout = sceneUtils.timeout;
@@ -124,7 +132,7 @@ public class SceneUtils {
             if (strategy == "开启") {
                 if (appliances.contains(temp)) {
                     if (device.getState() == 0) {
-                        String res = DeviceUtils.sendCmd(deviceId, cmd1, timeout);
+                        String res = DeviceUtils.sendCmd(deviceId, cmd1 + "_" + device.getId(), timeout);
                         JSONObject resJson = JSONObject.parseObject(res);
                         Object error = resJson.get("error").toString();
                         if (error.equals("succ")) {
@@ -137,7 +145,7 @@ public class SceneUtils {
                     }
                 } else {
                     if (device.getState() == 1) {
-                        String res = DeviceUtils.sendCmd(deviceId, cmd2, timeout);
+                        String res = DeviceUtils.sendCmd(deviceId, cmd2 + "_" + device.getId(), timeout);
                         JSONObject resJson = JSONObject.parseObject(res);
                         Object error = resJson.get("error").toString();
                         if (error.equals("succ")) {
@@ -152,7 +160,7 @@ public class SceneUtils {
             }else{
                 if (appliances.contains(temp)){
                     if (device.getState() == 1){
-                        String res = DeviceUtils.sendCmd(deviceId, cmd1, timeout);
+                        String res = DeviceUtils.sendCmd(deviceId, cmd1 + "_" + device.getId(), timeout);
                         JSONObject resJson = JSONObject.parseObject(res);
                         Object error = resJson.get("error").toString();
                         if (error.equals("succ")) {

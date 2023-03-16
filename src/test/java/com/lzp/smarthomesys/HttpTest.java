@@ -34,4 +34,9 @@ public class HttpTest {
 //    public void testDeviceUtils(){
 //        System.out.println(DeviceUtils.sendCmd("1037659370", "LED_LED1_OFF", "30"));
 //    }
+
+//    @Test
+//    public void testAddDevice(){
+//        System.out.println(DeviceUtils.addDevice("testDevice", "firstTest"));
+//    }
 }

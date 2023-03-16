@@ -28,4 +28,24 @@ public class DeviceUtils {
         params.put("data", cmd);
         return HttpUtils.sendPost(url, headers, params);
     }
+
+    /**
+     * 添加设备
+     * @param deviceName 设备名称
+     * @param deviceDesc 设备描述
+     * @return 返回值
+     */
+    public static String addDevice(String deviceName, String deviceDesc){
+        String url = "http://api.heclouds.com/devices";
+        Map<String, String> headers = new HashMap<>();
+        try {
+            headers.put("Authorization", Token.getToken());
+        }catch (Exception e){
+            log.info("没有获取到Authorization", e);
+        }
+        Map<String, String> params = new HashMap<>();
+        params.put("title", deviceName);
+        params.put("desc", deviceDesc);
+        return HttpUtils.sendPostJson(url, headers, params);
+    }
 }

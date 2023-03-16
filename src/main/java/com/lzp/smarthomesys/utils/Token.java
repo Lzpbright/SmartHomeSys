@@ -91,6 +91,13 @@ public class Token {
         token.version = this.version;
     }
 
+    /**
+     * 获取onenet平台的授权码
+     * @return token
+     * @throws UnsupportedEncodingException UnsupportedEncodingException
+     * @throws NoSuchAlgorithmException NoSuchAlgorithmException
+     * @throws InvalidKeyException InvalidKeyException
+     */
     public static String getToken() throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException {
         String productId = token.productId;
         String accessKey = token.accessKey;

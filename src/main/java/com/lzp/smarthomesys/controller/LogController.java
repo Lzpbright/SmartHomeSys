@@ -24,6 +24,11 @@ public class LogController {
 
     @Resource
     LogServiceImpl logService;
+
+    /**
+     * 获取所有命令发送日志
+     * @return Result
+     */
     @GetMapping("/getAll")
     @ApiOperation("获取所有日志")
     public Result getAll(){

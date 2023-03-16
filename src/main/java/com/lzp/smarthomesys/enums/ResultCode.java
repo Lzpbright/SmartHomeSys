@@ -8,6 +8,11 @@ public enum ResultCode {
     SUCCESS(20000, "成功"),
     ERROR(20001, "失败");
 
+    /**
+     * 返回结果构造函数
+     * @param resultValue 返回结果
+     * @param resultDesc 返回结果描述
+     */
     ResultCode(Integer resultValue, String resultDesc){
         this.resultValue = resultValue;
         this.resultDesc = resultDesc;

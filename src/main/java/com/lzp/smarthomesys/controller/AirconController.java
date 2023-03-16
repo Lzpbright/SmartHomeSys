@@ -50,7 +50,7 @@ public class AirconController {
     @GetMapping("/on")
     @ApiOperation("开启本空调")
     public Result on(@ApiParam(value = "空调标识", required = true) @RequestParam("id") String id){
-        String res = DeviceUtils.sendCmd(deviceId, CmdEnum.AIR_SWITCH_ON.getCmdValue(), timeout);
+        String res = DeviceUtils.sendCmd(deviceId, CmdEnum.AIR_SWITCH_ON.getCmdValue() + "_" + id, timeout);
         JSONObject resJson = JSONObject.parseObject(res);
         Object error = resJson.get("error").toString();
         if (error.equals("succ")) {
@@ -70,7 +70,7 @@ public class AirconController {
     @GetMapping("/off")
     @ApiOperation("关闭本空调")
     public Result off(@ApiParam(value = "空调标识", required = true) @RequestParam("id") String id){
-        String res = DeviceUtils.sendCmd(deviceId, CmdEnum.AIR_SWITCH_OFF.getCmdValue(), timeout);
+        String res = DeviceUtils.sendCmd(deviceId, CmdEnum.AIR_SWITCH_OFF.getCmdValue() + "_" + id, timeout);
         JSONObject resJson = JSONObject.parseObject(res);
         Object error = resJson.get("error").toString();
         if (error.equals("succ")) {
@@ -91,7 +91,7 @@ public class AirconController {
     @GetMapping("/modeAuto")
     @ApiOperation("自动模式")
     public Result modeAuto(@ApiParam(value = "空调标识", required = true) @RequestParam("id") String id){
-        String res = DeviceUtils.sendCmd(deviceId, CmdEnum.AIR_MODE_AUTO.getCmdValue(), timeout);
+        String res = DeviceUtils.sendCmd(deviceId, CmdEnum.AIR_MODE_AUTO.getCmdValue() + "_" + id, timeout);
         JSONObject resJson = JSONObject.parseObject(res);
         Object error = resJson.get("error").toString();
         if (airconService.getById(id).getState() == 1) {
@@ -116,7 +116,7 @@ public class AirconController {
     @GetMapping("/modeCool")
     @ApiOperation("制冷模式")
     public Result modeCool(@ApiParam(value = "空调标识", required = true) @RequestParam("id") String id){
-        String res = DeviceUtils.sendCmd(deviceId, CmdEnum.AIR_MODE_COOL.getCmdValue(), timeout);
+        String res = DeviceUtils.sendCmd(deviceId, CmdEnum.AIR_MODE_COOL.getCmdValue() + "_" + id, timeout);
         JSONObject resJson = JSONObject.parseObject(res);
         Object error = resJson.get("error").toString();
         if (airconService.getById(id).getState() == 1) {
@@ -141,7 +141,7 @@ public class AirconController {
     @GetMapping("/modeHot")
     @ApiOperation("制热模式")
     public Result modeHot(@ApiParam(value = "空调标识", required = true) @RequestParam("id") String id){
-        String res = DeviceUtils.sendCmd(deviceId, CmdEnum.AIR_MODE_HOT.getCmdValue(), timeout);
+        String res = DeviceUtils.sendCmd(deviceId, CmdEnum.AIR_MODE_HOT.getCmdValue() + "_" + id, timeout);
         JSONObject resJson = JSONObject.parseObject(res);
         Object error = resJson.get("error").toString();
         if (airconService.getById(id).getState() == 1) {
@@ -159,14 +159,14 @@ public class AirconController {
     }
 
     /**
-     * 除湿模式
+     * 通风模式
      * @param id 空调id
      * @return Result
      */
     @GetMapping("/modeDry")
-    @ApiOperation("除湿模式")
+    @ApiOperation("通风模式")
     public Result modeDry(@ApiParam(value = "空调标识", required = true) @RequestParam("id") String id){
-        String res = DeviceUtils.sendCmd(deviceId, CmdEnum.AIR_MODE_DRY.getCmdValue(), timeout);
+        String res = DeviceUtils.sendCmd(deviceId, CmdEnum.AIR_MODE_DRY.getCmdValue() + "_" + id, timeout);
         JSONObject resJson = JSONObject.parseObject(res);
         Object error = resJson.get("error").toString();
         if (airconService.getById(id).getState() == 1) {
@@ -191,7 +191,7 @@ public class AirconController {
     @GetMapping("/modeEcono")
     @ApiOperation("节能模式")
     public Result modeEcono(@ApiParam(value = "空调标识", required = true) @RequestParam("id") String id) {
-        String res = DeviceUtils.sendCmd(deviceId, CmdEnum.AIR_MODE_Econo.getCmdValue(), timeout);
+        String res = DeviceUtils.sendCmd(deviceId, CmdEnum.AIR_MODE_Econo.getCmdValue() + "_" + id, timeout);
         JSONObject resJson = JSONObject.parseObject(res);
         Object error = resJson.get("error").toString();
         if (airconService.getById(id).getState() == 1) {
@@ -215,25 +215,28 @@ public class AirconController {
      * @return Result
      */
     @GetMapping("/temper")
-    @ApiOperation("设置温度(硬件方尚有bug)")
+    @ApiOperation("设置温度")
     public Result temper(@ApiParam(value = "空调标识", required = true) @RequestParam("id") String id,
                          @ApiParam(value = "目标温度（16~30）", required = true) @RequestParam("temperature") String temperature){
         if (Integer.parseInt(temperature) >= 16 && Integer.parseInt(temperature) <= 30){
-            String res = DeviceUtils.sendCmd(deviceId, CmdEnum.AIR_SET_TEMP_.getCmdValue() + temperature, timeout);
+            String res = DeviceUtils.sendCmd(deviceId, CmdEnum.AIR_SET_TEMP_.getCmdValue() + temperature + "_" + id, timeout);
             JSONObject resJson = JSONObject.parseObject(res);
             Object error = resJson.get("error").toString();
             Aircon aircon = airconService.getById(id);
-            if (aircon.getState() == 1) {
-                if (error.equals("succ")) {
-                    airconService.temper(id, temperature);
-                    logService.saveCmdLog(airconService.getById(id), CmdEnum.AIR_SET_TEMP_.getCmdDesc() + "为" + temperature);
-                    return Result.success().setData("res", res);
+            if (aircon == null){
+                return Result.error().setData("mes", "没有找到id为" + aircon + "的空调");
+            }else {
+                if (aircon.getState() == 1) {
+                    if (error.equals("succ")) {
+                        airconService.temper(id, temperature);
+                        logService.saveCmdLog(airconService.getById(id), CmdEnum.AIR_SET_TEMP_.getCmdDesc() + "为" + temperature);
+                        return Result.success().setData("res", res);
+                    } else {
+                        return Result.error().setData("res", res);
+                    }
                 } else {
-                    return Result.error().setData("res", res);
+                    return Result.error().setData("mes", "空调未开启");
                 }
-            }
-            else {
-                return Result.error().setData("mes", "空调未开启");
             }
         }else {
             return Result.error().setData("mes", "温度范围为16~30摄氏度");
@@ -248,11 +251,11 @@ public class AirconController {
      * @return Result
      */
     @GetMapping("/windSpeed")
-    @ApiOperation("设置风速(硬件方尚有bug)")
+    @ApiOperation("设置风速")
     public Result windSpeed(@ApiParam(value = "空调标识", required = true) @RequestParam("id") String id,
                          @ApiParam(value = "目标风速（0~4,其中0是自动风速,1,2,3,4是对应几档风）", required = true) @RequestParam("speed") String speed){
-        if (Integer.parseInt(speed) >= 0 && Integer.parseInt(speed) <= 3){
-            String res = DeviceUtils.sendCmd(deviceId, CmdEnum.AIR_SET_FUN_.getCmdValue() + speed, timeout);
+        if (Integer.parseInt(speed) >= 0 && Integer.parseInt(speed) <= 4){
+            String res = DeviceUtils.sendCmd(deviceId, CmdEnum.AIR_SET_FUN_.getCmdValue() + speed + "_" + id, timeout);
             JSONObject resJson = JSONObject.parseObject(res);
             Object error = resJson.get("error").toString();
             Aircon aircon = airconService.getById(id);

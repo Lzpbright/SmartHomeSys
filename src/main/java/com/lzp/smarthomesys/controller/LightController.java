@@ -42,10 +42,15 @@ public class LightController {
     @Value("${onenet.timeout}")
     String timeout;
 
+    /**
+     * 开启灯泡
+     * @param id 灯泡标识
+     * @return Result
+     */
     @GetMapping("/on")
-    @ApiOperation("开启灯泡(硬件方尚未实现)")
+    @ApiOperation("开启灯泡")
     public Result on(@ApiParam(value = "灯泡标识", required = true) @RequestParam("id") String id){
-        String res = DeviceUtils.sendCmd(deviceId, CmdEnum.LIGHT_SWITCH_ON.getCmdValue(), timeout);
+        String res = DeviceUtils.sendCmd(deviceId, CmdEnum.LIGHT_SWITCH_ON.getCmdValue() + "_" + id, timeout);
         JSONObject resJson = JSONObject.parseObject(res);
         Object error = resJson.get("error").toString();
         if (error.equals("succ")) {
@@ -57,10 +62,15 @@ public class LightController {
         }
     }
 
+    /**
+     * 关闭灯泡
+     * @param id id
+     * @return result
+     */
     @GetMapping("/off")
-    @ApiOperation("关闭灯泡(硬件方尚未实现)")
+    @ApiOperation("关闭灯泡")
     public Result off(@ApiParam(value = "灯泡标识", required = true) @RequestParam("id") String id){
-        String res = DeviceUtils.sendCmd(deviceId, CmdEnum.LIGHT_SWITCH_OFF.getCmdValue(), timeout);
+        String res = DeviceUtils.sendCmd(deviceId, CmdEnum.LIGHT_SWITCH_OFF.getCmdValue() + "_" + id, timeout);
         JSONObject resJson = JSONObject.parseObject(res);
         Object error = resJson.get("error").toString();
         if (error.equals("succ")) {
@@ -83,7 +93,7 @@ public class LightController {
     public Result intensity(@ApiParam(value = "灯泡标识", required = true) @RequestParam("id") String id,
                             @ApiParam(value = "目标亮度（0~100）", required = true) @RequestParam("value") String value){
         if (Integer.parseInt(value) >= 0 && Integer.parseInt(value) <= 100){
-            String res = DeviceUtils.sendCmd(deviceId, CmdEnum.LIGHT_SET_INTENSITY_.getCmdValue() + value, timeout);
+            String res = DeviceUtils.sendCmd(deviceId, CmdEnum.LIGHT_SET_INTENSITY_.getCmdValue() + value + "_" + id, timeout);
             JSONObject resJson = JSONObject.parseObject(res);
             Object error = resJson.get("error").toString();
             Light light = lightService.getById(id);

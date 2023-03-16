@@ -1,6 +1,7 @@
 package com.lzp.smarthomesys.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.lzp.smarthomesys.entity.*;
 import com.lzp.smarthomesys.service.impl.*;
 import com.lzp.smarthomesys.utils.Result;
@@ -58,6 +59,11 @@ public class SceneController {
     LogServiceImpl logService;
 
 
+    /**
+     * 通过房间标识获取所有场景
+     * @param roomId 房间标识
+     * @return Result
+     */
     @GetMapping("/getByRoomId")
     @ApiOperation("用房间标识获取场景")
     public Result getByRoomId(@ApiParam(value = "房间标识", required = true) @RequestParam("roomId") String roomId){
@@ -67,6 +73,13 @@ public class SceneController {
         return Result.success().setData("scenes", scenes);
     }
 
+    /**
+     * 添加场景
+     * @param roomId 房间标识
+     * @param intro 房间备注
+     * @param appliance 场景电器
+     * @return Result
+     */
     @GetMapping("/add")
     @ApiOperation("添加场景")
     public Result add(@ApiParam(value = "房间标识", required = true) @RequestParam("roomId") String roomId,
@@ -94,6 +107,13 @@ public class SceneController {
         }
     }
 
+    /**
+     * 修改场景或者修改场景电器
+     * @param id 场景标识
+     * @param intro 场景名字
+     * @param appliance 场景电器
+     * @return Result
+     */
     @GetMapping("/modify")
     @ApiOperation("修改或增加电器")
     public Result modify(@ApiParam(value = "场景标识", required = true) @RequestParam("id") String id,
@@ -110,6 +130,28 @@ public class SceneController {
         return Result.success().setData("mes", "修改成功");
     }
 
+    /**
+     * 通过标识删除场景
+     * @param id 场景标识
+     * @return Result
+     */
+    @DeleteMapping("delete")
+    @ApiOperation("通过标识删除场景")
+    public Result delete(@ApiParam(value = "场景标识", required = true) @RequestParam("id") String id){
+        Scene scene = sceneService.getById(id);
+        if (scene != null){
+            sceneService.removeById(id);
+            return Result.success().setData("mes", "已删除id为" + id + "的场景");
+        }else{
+            return Result.error().setData("mes", "没有找到id为" + id + "的场景");
+        }
+    }
+
+    /**
+     * 获取场景电器
+     * @param id 场景id
+     * @return Result
+     */
     @GetMapping("/devices")
     @ApiOperation("获取场景所有电器")
     public Result modify(@ApiParam(value = "场景标识", required = true) @RequestParam(value = "id") String id){
@@ -127,6 +169,11 @@ public class SceneController {
         return Result.success().setData("devices", devices);
     }
 
+    /**
+     * 通过场景标识开启场景
+     * @param id 场景标识
+     * @return Result
+     */
     @GetMapping("/on")
     @ApiOperation("开启本场景")
     public Result on(@ApiParam(value = "场景标识", required = true) @RequestParam(value = "id") String id){
@@ -180,6 +227,11 @@ public class SceneController {
         }
     }
 
+    /**
+     * 通过哦场景标识关闭场景
+     * @param id 场景标识
+     * @return Result
+     */
     @GetMapping("/off")
     @ApiOperation("关闭本场景")
     public Result off(@ApiParam(value = "场景标识", required = true) @RequestParam(value = "id") String id){

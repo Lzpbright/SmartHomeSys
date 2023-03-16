@@ -1,8 +1,10 @@
 package com.lzp.smarthomesys.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.lzp.smarthomesys.entity.Lock;
 import com.lzp.smarthomesys.entity.Room;
 import com.lzp.smarthomesys.entity.User;
+import com.lzp.smarthomesys.service.impl.LockServiceImpl;
 import com.lzp.smarthomesys.service.impl.RoomServiceImpl;
 import com.lzp.smarthomesys.service.impl.UserServiceImpl;
 import com.lzp.smarthomesys.utils.Base64Utils;
@@ -39,9 +41,17 @@ public class UserController {
     @Resource
     RoomServiceImpl roomService;
 
+    @Resource
+    LockServiceImpl lockService;
+
 
     private Map<String, String> authCodes = new HashMap<>();
 
+    /**
+     * 发送邮箱验证码
+     * @param email 邮箱
+     * @return Result
+     */
     @ApiOperation("发送验证码")
     @GetMapping("/sendMail")
     public Result sendMail(@ApiParam(value = "邮箱", required = true) @RequestParam("email") String email){
@@ -57,6 +67,13 @@ public class UserController {
         return Result.success().setData("mes", "发送成功!");
     }
 
+    /**
+     * 用户注册
+     * @param email 用户邮箱
+     * @param password 用户密码
+     * @param authCode 邮箱验证码
+     * @return Result
+     */
     @ApiOperation("注册")
     @GetMapping("/register")
     public Result register(@ApiParam(value = "邮箱", required = true) @RequestParam("email") String email,
@@ -70,12 +87,22 @@ public class UserController {
                 User user = new User();
                 user.setEmail(email).setPassword(Base64Utils.encode(password));
                 service.save(user);
+
                 // 默认房间
                 String userId = service.getOne(wrapper).getId();
                 roomService.save(new Room().setUserId(userId).setPosition("客厅"));
                 roomService.save(new Room().setUserId(userId).setPosition("卧室"));
                 roomService.save(new Room().setUserId(userId).setPosition("厨房"));
                 roomService.save(new Room().setUserId(userId).setPosition("卫生间"));
+
+                // 默认客厅门锁
+                Lock lock = new Lock();
+                List<Room> keting = roomService.list(new LambdaQueryWrapper<Room>().eq(Room::getUserId, userId).eq(Room::getPosition, "客厅"));
+                lock.setRoomId(keting.get(0).getId());
+                lock.setBrand("鹏哥电器");
+                lock.setSmallPos("大门门锁");
+                lockService.save(lock);
+
                 return Result.success().setData("mes", "注册成功!");
             } else {
                 return Result.error().setData("mes", "验证码不匹配");
@@ -87,6 +114,12 @@ public class UserController {
         }
     }
 
+    /**
+     * 用户登录
+     * @param email 用户邮箱
+     * @param password 用户密码
+     * @return Result
+     */
     @ApiOperation("用户登录")
     @GetMapping("/login")
     public Result login(@ApiParam(value = "邮箱", required = true) @RequestParam("email") String email,
@@ -102,6 +135,15 @@ public class UserController {
         }
     }
 
+    /**
+     * 用户信息修改
+     * @param id 用户标识
+     * @param teleNumber 用户手机号
+     * @param nickName 用户昵称
+     * @param sex 用户性别
+     * @param location 用户位置
+     * @return Result
+     */
     @ApiOperation("用户信息修改")
     @GetMapping("/modify")
     public Result modify(@ApiParam(value = "用户标识") @RequestParam("id") String id,
@@ -120,6 +162,13 @@ public class UserController {
         return Result.success().setData("mes", "修改成功");
     }
 
+    /**
+     * 用户密码修改
+     * @param id 用户标识
+     * @param newPassword 新密码
+     * @param authCode 授权码
+     * @return Result
+     */
     @ApiOperation("用户密码修改")
     @GetMapping("/modifyPassword")
     public Result modify(@ApiParam(value = "用户标识", required = true) @RequestParam("id") String id,
@@ -144,6 +193,11 @@ public class UserController {
         }
     }
 
+    /**
+     * 通过用户标识获取用户信息
+     * @param id 用户标识
+     * @return Result
+     */
     @ApiOperation("标识获取用户信息")
     @GetMapping("/getById")
     public Result modify(@ApiParam(value = "用户标识", required = true) @RequestParam("id") String id) {
@@ -156,6 +210,13 @@ public class UserController {
         }
     }
 
+    /**
+     * 上传用户头像
+     * @param id 用户id
+     * @param file 用户头像文件
+     * @return Result
+     * @throws IOException 异常
+     */
     @PostMapping("/uploadIcon")
     @ApiOperation("上传头像[头像文件小于5M]")
     public Result uploads(@ApiParam(value = "用户标识", required = true) @RequestParam("id") String id,
@@ -187,6 +248,10 @@ public class UserController {
         }
     }
 
+    /**
+     * 通过标识获取所有用户
+     * @return Result
+     */
     @GetMapping("/list")
     @ApiOperation("获取所有用户")
     public Result list(){

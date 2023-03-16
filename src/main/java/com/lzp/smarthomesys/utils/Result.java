@@ -20,7 +20,10 @@ public class Result {
     // 返回可能数据
     private Map<String, Object> data;
 
-    // 成功的操作
+    /**
+     * 返回成功的结果
+     * @return Result
+     */
     public static Result success(){
         return new Result()
                 .setIsSuccess(true)
@@ -29,7 +32,10 @@ public class Result {
                 .setData(new HashMap<>());
     }
 
-    // 失败的操作
+    /**
+     * 返回失败的结果
+     * @return Result
+     */
     public static Result error(){
         return new Result()
                 .setIsSuccess(false)
@@ -38,11 +44,22 @@ public class Result {
                 .setData(new HashMap<>());
     }
 
+    /**
+     * 设置Result里面的内容
+     * @param data 数据
+     * @return Result
+     */
     public Result setData(HashMap<String, Object> data){
         this.data = data;
         return this;
     }
 
+    /**
+     * 设置Result里面的内容
+     * @param key 键
+     * @param value 值
+     * @return Result
+     */
     public Result setData(String key, Object value){
         this.data.put(key, value);
         return this;

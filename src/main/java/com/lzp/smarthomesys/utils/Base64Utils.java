@@ -33,7 +33,6 @@ public class Base64Utils {
      *
      * @param text 待加密内容
      * @return String
-     * @throws IOException IOException
      */
     public static String encode(String text) {
         return encoder.encodeToString(text.getBytes(StandardCharsets.UTF_8));

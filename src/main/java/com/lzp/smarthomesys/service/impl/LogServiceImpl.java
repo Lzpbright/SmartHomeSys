@@ -27,6 +27,11 @@ public class LogServiceImpl extends ServiceImpl<LogMapper, Log> implements ILogS
     @Resource
     private RoomMapper roomMapper;
 
+    /**
+     * 对设备发送的命令加入日志
+     * @param device 设备
+     * @param action 动作
+     */
     @Override
     public void saveCmdLog(IDevice device, String action) {
         Room room = roomMapper.selectById(device.getRoomId());

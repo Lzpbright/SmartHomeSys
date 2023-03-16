@@ -42,10 +42,15 @@ public class OtherController {
     @Value("${onenet.timeout}")
     String timeout;
 
+    /**
+     * 开启其他电器
+     * @param id 其他电器标识
+     * @return Result
+     */
     @GetMapping("/on")
     @ApiOperation("开启其他电器(硬件方尚未实现)")
     public Result on(@ApiParam(value = "其他电器标识", required = true) @RequestParam("id") String id){
-        String res = DeviceUtils.sendCmd(deviceId, CmdEnum.OTHER_SWITCH_ON.getCmdValue(), timeout);
+        String res = DeviceUtils.sendCmd(deviceId, CmdEnum.OTHER_SWITCH_ON.getCmdValue() + "_" + id, timeout);
         JSONObject resJson = JSONObject.parseObject(res);
         Object error = resJson.get("error").toString();
         if (error.equals("succ")) {
@@ -57,10 +62,15 @@ public class OtherController {
         }
     }
 
+    /**
+     * 关闭其他电器
+     * @param id 其他电器标识
+     * @return Result
+     */
     @GetMapping("/off")
     @ApiOperation("关闭其他电器(硬件方尚未实现)")
     public Result off(@ApiParam(value = "其他电器标识", required = true) @RequestParam("id") String id){
-        String res = DeviceUtils.sendCmd(deviceId, CmdEnum.OTHER_SWITCH_OFF.getCmdValue(), timeout);
+        String res = DeviceUtils.sendCmd(deviceId, CmdEnum.OTHER_SWITCH_OFF.getCmdValue() + "_" + id, timeout);
         JSONObject resJson = JSONObject.parseObject(res);
         Object error = resJson.get("error").toString();
         if (error.equals("succ")) {

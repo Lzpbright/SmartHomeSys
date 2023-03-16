@@ -31,6 +31,10 @@ public class LockServiceImpl extends ServiceImpl<LockMapper, Lock> implements IL
     private RoomMapper roomMapper;
 
 
+    /**
+     * 通过标识开启门锁
+     * @param id 标识
+     */
     @Override
     public void on(String id) {
         Lock lock = lockMapper.selectById(id);
@@ -40,6 +44,10 @@ public class LockServiceImpl extends ServiceImpl<LockMapper, Lock> implements IL
         lockMapper.updateById(lock);
     }
 
+    /**
+     * 通过标识关闭门锁
+     * @param id 标识
+     */
     @Override
     public void off(String id) {
         Lock lock = lockMapper.selectById(id);
@@ -49,6 +57,11 @@ public class LockServiceImpl extends ServiceImpl<LockMapper, Lock> implements IL
         lockMapper.updateById(lock);
     }
 
+    /**
+     * 实现接口,通过id获取对象
+     * @param id 标识
+     * @return IDevice
+     */
     @Override
     public IDevice myGetById(String id) {
         return lockMapper.selectById(id);

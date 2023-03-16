@@ -36,6 +36,10 @@ public class OtherServiceImpl extends ServiceImpl<OtherMapper, Other> implements
     @Resource
     private LogMapper logMapper;
 
+    /**
+     * 通过标识开启其他电器
+     * @param id 标识
+     */
     @Override
     public void on(String id) {
         Other other = otherMapper.selectById(id);
@@ -45,6 +49,10 @@ public class OtherServiceImpl extends ServiceImpl<OtherMapper, Other> implements
         otherMapper.updateById(other);
     }
 
+    /**
+     * 通过标识关闭其他电器
+     * @param id 标识
+     */
     @Override
     public void off(String id) {
         Other other = otherMapper.selectById(id);
@@ -54,6 +62,11 @@ public class OtherServiceImpl extends ServiceImpl<OtherMapper, Other> implements
         otherMapper.updateById(other);
     }
 
+    /**
+     * 实现接口,通过id获取对象
+     * @param id 标识
+     * @return IDevice
+     */
     @Override
     public IDevice myGetById(String id) {
         return otherMapper.selectById(id);
