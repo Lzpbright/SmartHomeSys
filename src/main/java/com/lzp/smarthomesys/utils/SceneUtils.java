@@ -52,7 +52,7 @@ public class SceneUtils {
      * @param deviceList 设备列表
      * @param appliances 场景电器
      * @param strategy 开或者关
-     * @return
+     * @return Map<Object, Object>
      */
     public static Map<Object, Object> onOrOff(String id, List<IDevice> deviceList, String appliances, String strategy){
         String deviceId = sceneUtils.deviceId;

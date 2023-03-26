@@ -5,12 +5,12 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.lzp.smarthomesys.entity.Lock;
 import com.lzp.smarthomesys.entity.Room;
 import com.lzp.smarthomesys.enums.CmdEnum;
-import com.lzp.smarthomesys.service.impl.LightServiceImpl;
 import com.lzp.smarthomesys.service.impl.LockServiceImpl;
 import com.lzp.smarthomesys.service.impl.LogServiceImpl;
 import com.lzp.smarthomesys.service.impl.RoomServiceImpl;
 import com.lzp.smarthomesys.utils.DeviceUtils;
 import com.lzp.smarthomesys.utils.Result;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,6 +29,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/lock")
+@Api("门锁控制器")
 public class LockController {
 
     @Resource
@@ -97,13 +98,22 @@ public class LockController {
     @ApiOperation("通过用户标识获取到门锁")
     public Result getByUserId(@ApiParam(value = "用户标识", required = true) @RequestParam("userId") String userId){
         List<Room> rooms = roomService.list(new LambdaQueryWrapper<Room>().eq(Room::getUserId, userId).eq(Room::getPosition, "客厅"));
-        Room room = null;
+        Room room;
         if (rooms.size() == 0){
-            return Result.error().setData("mes", "用户没有客厅？");
+            return Result.error().setData("mes", "用户没有客厅?");
         }else {
             room = rooms.get(0);
         }
         List<Lock> locks = lockService.list(new LambdaQueryWrapper<Lock>().eq(Lock::getRoomId, room.getId()));
         return Result.success().setData("lock", locks);
+    }
+
+    @GetMapping("/exceptionTest")
+    @ApiOperation("全局异常测试")
+    public Result exceptionTest(){
+        int a = 1;
+        int b= 0;
+        System.out.println(a / b);
+        return Result.success().setData("mes", "没有抛出异常");
     }
 }

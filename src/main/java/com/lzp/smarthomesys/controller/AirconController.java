@@ -2,21 +2,18 @@ package com.lzp.smarthomesys.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.lzp.smarthomesys.entity.Aircon;
-import com.lzp.smarthomesys.entity.Log;
-import com.lzp.smarthomesys.entity.Room;
 import com.lzp.smarthomesys.enums.CmdEnum;
 import com.lzp.smarthomesys.service.impl.AirconServiceImpl;
 import com.lzp.smarthomesys.service.impl.LogServiceImpl;
-import com.lzp.smarthomesys.service.impl.RoomServiceImpl;
 import com.lzp.smarthomesys.utils.DeviceUtils;
 import com.lzp.smarthomesys.utils.Result;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.text.SimpleDateFormat;
 
 /**
  * <p>
@@ -28,6 +25,7 @@ import java.text.SimpleDateFormat;
  */
 @RestController
 @RequestMapping("/aircon")
+@Api("空调控制器")
 public class AirconController {
 
     @Value("${onenet.device_id}")

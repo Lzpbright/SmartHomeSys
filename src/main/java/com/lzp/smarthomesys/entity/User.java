@@ -8,8 +8,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import java.io.Serializable;
-
 /**
  * <p>
  * 用户实体类

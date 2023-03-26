@@ -14,23 +14,20 @@ import java.util.UUID;
 @Component
 public class UploadUtils {
 
-    @Value("${images.winPath}")
-    public String winPath;
-
-    @Value("${images.linuxPath}")
-    private String linuxPath;
-
     @Value("${images.accessPath}")
-    private String accessPath;
+    private String accessPathImage;
+
+    @Value("${images.actualPath}")
+    private String actualPathImage;
+
 
     private static UploadUtils uploadUtils;
 
     @PostConstruct
     private void init(){
         uploadUtils = this;
-        uploadUtils.winPath = this.winPath;
-        uploadUtils.linuxPath = this.linuxPath;
-        uploadUtils.accessPath = this.accessPath;
+        uploadUtils.actualPathImage = this.actualPathImage;
+        uploadUtils.accessPathImage = this.accessPathImage;
     }
 
     /**
@@ -40,17 +37,9 @@ public class UploadUtils {
      * @throws IOException 输入输出异常
      */
     public static String uploads(MultipartFile file) throws IOException {
-        String winPath = uploadUtils.winPath;
-        String linuxPath = uploadUtils.linuxPath;
-        String accessPath = uploadUtils.accessPath;
+        String actualPathImage = uploadUtils.actualPathImage;
+        String accessPathImage = uploadUtils.accessPathImage;
 
-        String usePath;
-        String os = System.getProperty("os.name");
-        if (os.toLowerCase().startsWith("win")) {
-            usePath = winPath;
-        }else {
-            usePath = linuxPath;
-        }
         // 获取文件后缀
         String suffix = Objects.requireNonNull(file.getOriginalFilename())
                 .substring(file.getOriginalFilename().lastIndexOf('.') + 1);
@@ -60,19 +49,19 @@ public class UploadUtils {
 
         // 每天建立一个文件夹
         String time = (new SimpleDateFormat("yyyy/MM/dd")).format(System.currentTimeMillis());
-        usePath += "/" + time + "/";
+        actualPathImage += time + "/";
 
         // 判断是否存在本目录
-        File destFile = new File(usePath + fileName);
+        File destFile = new File(actualPathImage + fileName);
         if (!destFile.getParentFile().exists()) {
             destFile.getParentFile().mkdirs();
         }
 
         // 文件写入
-        File descFile = new File(usePath, fileName);
+        File descFile = new File(actualPathImage, fileName);
         file.transferTo(descFile);
 
         // 返回文件url
-        return accessPath + time + "/" + fileName;
+        return accessPathImage + time + "/" + fileName;
     }
 }

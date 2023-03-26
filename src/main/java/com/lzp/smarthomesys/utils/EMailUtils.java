@@ -10,7 +10,6 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
-import java.io.IOException;
 import java.util.Date;
 
 @Slf4j

@@ -1,9 +1,7 @@
 package com.lzp.smarthomesys.service;
 
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.lzp.smarthomesys.entity.IDevice;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 
 @Component

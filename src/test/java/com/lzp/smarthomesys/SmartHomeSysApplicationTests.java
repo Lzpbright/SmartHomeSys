@@ -1,30 +1,6 @@
 package com.lzp.smarthomesys;
 
-import com.alibaba.fastjson.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.generator.FastAutoGenerator;
-import com.baomidou.mybatisplus.generator.engine.FreemarkerTemplateEngine;
-import com.lzp.smarthomesys.entity.Lock;
-import com.lzp.smarthomesys.entity.Log;
-import com.lzp.smarthomesys.entity.Scene;
-import com.lzp.smarthomesys.service.ILogService;
-import com.lzp.smarthomesys.service.impl.LockServiceImpl;
-import com.lzp.smarthomesys.service.impl.LogServiceImpl;
-import com.lzp.smarthomesys.service.impl.SceneServiceImpl;
-import com.lzp.smarthomesys.service.impl.UserServiceImpl;
-import com.lzp.smarthomesys.utils.HttpUtils;
-import com.lzp.smarthomesys.utils.Token;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import javax.annotation.Resource;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.text.SimpleDateFormat;
-import java.util.*;
 
 @SpringBootTest
 class SmartHomeSysApplicationTests {
@@ -136,7 +112,7 @@ class SmartHomeSysApplicationTests {
 //
 //    @Test
 //    public void tokenTest() throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException {
-//        String token = Token.getToken();
+//        String token = TokenUtils.getOneNetToken();
 //        System.out.println("token = " + token);
 //    }
 //

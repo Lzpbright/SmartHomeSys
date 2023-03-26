@@ -3,20 +3,13 @@ package com.lzp.smarthomesys.service.impl;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lzp.smarthomesys.entity.Aircon;
 import com.lzp.smarthomesys.entity.IDevice;
-import com.lzp.smarthomesys.entity.Log;
 import com.lzp.smarthomesys.entity.Room;
-import com.lzp.smarthomesys.enums.CmdEnum;
 import com.lzp.smarthomesys.mapper.AirconMapper;
-import com.lzp.smarthomesys.mapper.LogMapper;
 import com.lzp.smarthomesys.mapper.RoomMapper;
 import com.lzp.smarthomesys.service.IAirconService;
-import com.lzp.smarthomesys.service.IDeviceService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.text.SimpleDateFormat;
-
 /**
  * <p>
  *  服务实现类,这里主要就是对于数据库的操作,并不是涉及到发送命令

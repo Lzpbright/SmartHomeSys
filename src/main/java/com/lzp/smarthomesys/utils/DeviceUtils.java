@@ -20,7 +20,7 @@ public class DeviceUtils {
 
         Map<String, String> headers = new HashMap<>();
         try {
-            headers.put("Authorization", Token.getToken());
+            headers.put("Authorization", TokenUtils.getOneNetToken());
         }catch (Exception e){
             log.info("没有获取到Authorization", e);
         }
@@ -39,7 +39,7 @@ public class DeviceUtils {
         String url = "http://api.heclouds.com/devices";
         Map<String, String> headers = new HashMap<>();
         try {
-            headers.put("Authorization", Token.getToken());
+            headers.put("Authorization", TokenUtils.getOneNetToken());
         }catch (Exception e){
             log.info("没有获取到Authorization", e);
         }

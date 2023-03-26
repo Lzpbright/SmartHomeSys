@@ -3,6 +3,7 @@ package com.lzp.smarthomesys.controller;
 import com.lzp.smarthomesys.entity.Log;
 import com.lzp.smarthomesys.service.impl.LogServiceImpl;
 import com.lzp.smarthomesys.utils.Result;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,6 +21,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/log")
+@Api("设备命令日志控制器")
 public class LogController {
 
     @Resource

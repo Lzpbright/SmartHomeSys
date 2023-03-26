@@ -1,11 +1,13 @@
 package com.lzp.smarthomesys.utils;
 
+import com.alibaba.nls.client.AccessToken;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.security.InvalidKeyException;
@@ -17,7 +19,7 @@ import java.util.Base64;
  * use：用来生成授权码
  */
 @Component
-public class Token {
+public class TokenUtils {
 
     public static String assembleToken(String version, String resourceName, String expirationTime,
                                        String signatureMethod, String accessKey)
@@ -51,7 +53,7 @@ public class Token {
 
     public static byte[] HmacEncrypt(String data, String key, String signatureMethod)
             throws NoSuchAlgorithmException, InvalidKeyException {
-        //根据给定的字节数组构造一个密钥,第二参数指定一个密钥算法的名称
+        //根据给定的字节数组构造一个密钥,第二参个数指定一个密钥算法的名称
         SecretKeySpec signinKey = null;
         signinKey = new SecretKeySpec(Base64.getDecoder().decode(key),
                 "Hmac" + signatureMethod.toUpperCase());
@@ -80,15 +82,24 @@ public class Token {
     // 版本号，无需修改
     @Value("${onenet.version}")
     private String version;
+
+    @Value("${aliyun.accessKeyId}")
+    private String akID;
+
+    @Value("${aliyun.accessKeySecret}")
+    private String akSecret;
+
     // 维护本类中一个静态变量
-    private static Token token;
+    private static TokenUtils tokenUtils;
 
     @PostConstruct
     private void init(){
-        token = this;
-        token.accessKey = this.accessKey;
-        token.productId = this.productId;
-        token.version = this.version;
+        tokenUtils = this;
+        tokenUtils.accessKey = this.accessKey;
+        tokenUtils.productId = this.productId;
+        tokenUtils.version = this.version;
+        tokenUtils.akID = this.akID;
+        tokenUtils.akSecret = this.akSecret;
     }
 
     /**
@@ -98,10 +109,10 @@ public class Token {
      * @throws NoSuchAlgorithmException NoSuchAlgorithmException
      * @throws InvalidKeyException InvalidKeyException
      */
-    public static String getToken() throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException {
-        String productId = token.productId;
-        String accessKey = token.accessKey;
-        String version = token.version;
+    public static String getOneNetToken() throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException {
+        String productId = tokenUtils.productId;
+        String accessKey = tokenUtils.accessKey;
+        String version = tokenUtils.version;
         // API访问 访问资源
         String resourceName = "products/" + productId;
         // 访问过期时间
@@ -110,4 +121,21 @@ public class Token {
         String signatureMethod = SignatureMethod.SHA1.name().toLowerCase();
         return assembleToken(version, resourceName, expirationTime, signatureMethod, accessKey);
     }
+
+
+    /**
+     * 获取aliyun平台的语音识别token
+     * @return String
+     * @throws IOException IOException
+     */
+    public static String getAliyunNlsToken() throws IOException {
+        String akID = tokenUtils.akID;
+        String akSecret = tokenUtils.akSecret;
+
+        AccessToken accessToken = new AccessToken(akID, akSecret);
+        accessToken.apply();
+        return accessToken.getToken();
+    }
+
+
 }

@@ -4,9 +4,11 @@ import com.baomidou.mybatisplus.annotation.EnumValue;
 
 // 返回编码
 public enum ResultCode {
-    // 成功20000,以及错误20001是一般来说为了和前端统一的方式
+    // 成功20000,以及错误20001, 还有异常20002是一般来说为了和前端统一的方式
     SUCCESS(20000, "成功"),
-    ERROR(20001, "失败");
+    ERROR(20001, "失败"),
+
+    EXCEPT(20002, "异常");
 
     /**
      * 返回结果构造函数

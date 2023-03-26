@@ -1,19 +1,25 @@
 package com.lzp.smarthomesys.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.lzp.smarthomesys.entity.*;
 import com.lzp.smarthomesys.enums.CmdEnum;
 import com.lzp.smarthomesys.service.impl.*;
-import com.lzp.smarthomesys.utils.DeviceUtils;
-import com.lzp.smarthomesys.utils.Result;
+import com.lzp.smarthomesys.utils.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.convert.ConversionException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -24,34 +30,58 @@ import java.util.*;
  * @author Bright J
  * @since 2023-02-22
  */
+@Slf4j
 @RestController
 @Api("房间控制器")
 @RequestMapping("/room")
 public class RoomController {
 
     @Resource
-    RoomServiceImpl roomService;
+    private RoomServiceImpl roomService;
 
     @Resource
-    AirconServiceImpl airconService;
+    private AirconServiceImpl airconService;
 
     @Resource
-    LightServiceImpl lightService;
+    private LightServiceImpl lightService;
 
     @Resource
-    LockServiceImpl lockService;
+    private LockServiceImpl lockService;
 
     @Resource
-    OtherServiceImpl otherService;
+    private OtherServiceImpl otherService;
 
     @Resource
-    LogServiceImpl logService;
+    private LogServiceImpl logService;
+
+    @Resource
+    private FileUtils fileUtils;
 
     @Value("${onenet.device_id}")
-    String deviceId;
+    private String deviceId;
 
     @Value("${onenet.timeout}")
-    String timeout;
+    private String timeout;
+
+    @Value("${aliyun.url}")
+    private String audioUrl;
+
+    @Value("${aliyun.apikey}")
+    private String audioApikey;
+
+    @Value("${aliyun.rate}")
+    private String audioRate;
+
+    @Value("${audio.actualPath}")
+    private String actualPathAudio;
+
+    private String aliyunToken;
+
+    // 在类初始化的时候对其赋值
+    @PostConstruct
+    private void init() {
+        aliyunToken = fileUtils.readAliyunToken();
+    }
 
     /**
      * 通过用户标识获取其所有房间
@@ -284,11 +314,11 @@ public class RoomController {
                 if (light.getState().equals(state)) {
                     openedLights.add(light);
                     if (op == 1) {
-                        DeviceUtils.sendCmd(deviceId, CmdEnum.OTHER_SWITCH_ON.getCmdValue() + "_" + light.getId(), timeout);
+                        DeviceUtils.sendCmd(deviceId, CmdEnum.LIGHT_SWITCH_ON.getCmdValue() + "_" + light.getId(), timeout);
                         lightService.on(light.getId());
                     }
                     else {
-                        DeviceUtils.sendCmd(deviceId, CmdEnum.OTHER_SWITCH_ON.getCmdValue() + "_" + light.getId(), timeout);
+                        DeviceUtils.sendCmd(deviceId, CmdEnum.LIGHT_SWITCH_OFF.getCmdValue() + "_" + light.getId(), timeout);
                         lightService.off(light.getId());
                     }
                     logService.saveCmdLog(light, cmdStr);
@@ -440,4 +470,282 @@ public class RoomController {
         }
     }
 
+    /**
+     * 语音识别
+     * @param mp3File 语音识别的mp3文件
+     * @return Result
+     */
+    @PostMapping("/audio")
+    @ApiOperation("语音识别")
+    public Result audio(@ApiParam(value = "mp3文件", required = true) @RequestParam("mp3File") MultipartFile mp3File) {
+        if (mp3File != null) {
+            // 使用UUID新建文件名防止生成的临时文件重复
+            String fileName = String.valueOf(UUID.randomUUID());
+
+            String mp3Path = actualPathAudio + "mp3";
+            String pcmPath = actualPathAudio + "pcm";
+            // 每天建立一个文件夹
+            String time = (new SimpleDateFormat("yyyy/MM/dd")).format(System.currentTimeMillis());
+            mp3Path += "/" + time + "/";
+            pcmPath += "/" + time + "/";
+            // 将文件进行转换为pcm同时发送到语音识别获得返回值
+            try {
+                // 判断是否存在本目录
+                File file1 = new File(mp3Path + fileName + ".mp3");
+                File file2 = new File(pcmPath + fileName + ".pcm");
+                if (!file1.getParentFile().exists()) {
+                    boolean a = file1.getParentFile().mkdirs();
+                }
+                if (!file2.getParentFile().exists()) {
+                    boolean b = file2.getParentFile().mkdirs();
+                }
+
+                // 新建文件并将MP3文件保存在该路径下
+                File file = new File(mp3Path, fileName + ".mp3");
+                mp3File.transferTo(file);
+
+                // 将该路径下面的mp3文件转换为pcm文件并保存下来
+                AudioConvertUtils.mp3ToPcm(mp3Path + fileName + ".mp3", pcmPath + fileName + ".pcm");
+
+                // 设置接口请求参数以及请求头和请求体
+                Map<String, String> params = new HashMap<>();
+                Map<String, String> headers = new HashMap<>();
+                params.put("appkey", audioApikey);
+                params.put("sample_rate", audioRate);
+                headers.put("X-NLS-Token", aliyunToken);
+
+                // 使用工具类发送请求
+                String res = HttpUtils.sendPostAFile(audioUrl, params, headers, new File(pcmPath + fileName + ".pcm"));
+
+                // 根据返回情况返回结果
+                JSONObject resJson = JSON.parseObject(res);
+                log.info(res);
+                String status = resJson.get("status").toString();
+                if (status.equals("20000000")){
+                    return Result.success().setData("res", resJson.get("result"));
+                }if (status.equals("40000001")){
+                    String token = TokenUtils.getAliyunNlsToken();
+                    fileUtils.modifyAliyunToken(token);
+                    aliyunToken = token;
+                    log.info("新的阿里云语音识别token: " + token);
+                    return Result.error().setData("mes", "之前的token不存在或过期, 已重新获取token, 请重新说一次命令");
+                }else {
+                    return Result.error().setData("mes", resJson.get("message"));
+                }
+            }catch (Exception e){
+                log.info("语音识别异常", e);
+                return Result.error().setData("mes", "语音识别异常");
+            }
+        }
+        else {
+            return Result.error().setData("mes", "请上传文件");
+        }
+    }
+
+
+    /**
+     * 开启或者关闭本房间所有灯泡
+     * @param roomId 房间id
+     * @param op 操作
+     * @return result
+     */
+    @PutMapping("/allAirsOnOrOff")
+    @ApiOperation("语音识别-开启或者关闭所有空调")
+    public Result allAirsOnOrOff(@ApiParam(value = "房间标识", required = true) @RequestParam("roomId") String roomId,
+                                 @ApiParam(value = "选择0[关闭]或1[开启]", required = true) @RequestParam("op") Integer op){
+        // 默认是关闭命令
+        Integer state = 1;
+        String cmdStr = CmdEnum.AIR_SWITCH_OFF.getCmdDesc();;
+        String onOrOff = "关闭";
+        // 如果是开启命令则进行修改
+        if (op == 1){
+            state = 0;
+            cmdStr = CmdEnum.AIR_SWITCH_ON.getCmdDesc();
+            onOrOff = "开启";
+        }else if (op != 0){
+            return Result.error().setData("mes", "op请选择0或者1操作");
+        }
+        Room room = roomService.getById(roomId);
+        if (room != null){
+            LambdaQueryWrapper<Aircon> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(Aircon::getRoomId, roomId);
+            List<Aircon> aircons = airconService.list(wrapper);
+            List<Aircon> openedAirs = new ArrayList<>();
+            Map<String, List<Aircon>> result = new HashMap<>();
+            result.put("所有空调", aircons);
+            for (Aircon aircon: aircons){
+                if (aircon.getState().equals(state)) {
+                    openedAirs.add(aircon);
+                    if (op == 1) {
+                        DeviceUtils.sendCmd(deviceId, CmdEnum.AIR_SWITCH_ON.getCmdValue() + "_" + aircon.getId(), timeout);
+                        airconService.on(aircon.getId());
+                    }
+                    else {
+                        DeviceUtils.sendCmd(deviceId, CmdEnum.AIR_SWITCH_OFF.getCmdValue() + "_" + aircon.getId(), timeout);
+                        airconService.off(aircon.getId());
+                    }
+                    logService.saveCmdLog(aircon, cmdStr);
+                }
+            }
+            result.put(onOrOff + "空调", openedAirs);
+            return Result.success().setData("result", result);
+        }else {
+            return Result.error().setData("mes", "没有找到标识为" + roomId + "的房间");
+        }
+    }
+
+    /**
+     * 语音识别-设置空调
+     * @param roomId 房间标识
+     * @param key 设置目标
+     * @param value 设置目标的值
+     * @return Result
+     */
+    @PutMapping("/allAirsSet")
+    @ApiOperation("语音识别-设置空调, 对于没有开启的空调将自动将其开启")
+    public Result allAirsSet(@ApiParam(value = "房间标识", required = true) @RequestParam("roomId") String roomId,
+                             @ApiParam(value = "选择[模式],[风速],[温度]", required = true) @RequestParam("key") String key,
+                             @ApiParam(value = "选择[模式:[自动, 制冷, 制热, 通风, 节能], 风速:[0(自动风), 1, 2, 3, 4], 温度:[16~30]整数]", required = true) @RequestParam("value") String value){
+        Room room = roomService.getById(roomId);
+        if (room != null){
+            List<Aircon> aircons = airconService.list(new LambdaQueryWrapper<Aircon>().eq(Aircon::getRoomId, roomId));
+            // 将没有开启的空调全部开启
+            for (Aircon aircon:aircons) {
+                if (aircon.getState() == 1) continue;
+                // 向硬件端发送请求
+                DeviceUtils.sendCmd(deviceId, CmdEnum.AIR_SWITCH_ON.getCmdValue() + "_" + aircon.getId(), timeout);
+                airconService.on(aircon.getId());
+                logService.saveCmdLog(aircon, CmdEnum.AIR_SWITCH_ON.getCmdDesc());
+            }
+            // 判断选择的功能
+            switch (key){
+                case "模式":{
+                    switch (value) {
+                        case "自动": {
+                            for (Aircon aircon:aircons){
+                                if (aircon.getMode().equals("自动")) continue;
+                                DeviceUtils.sendCmd(deviceId, CmdEnum.AIR_MODE_AUTO.getCmdValue() + "_" + aircon.getId(), timeout);
+                                airconService.modeAuto(aircon.getId());
+                                logService.saveCmdLog(aircon, CmdEnum.AIR_MODE_AUTO.getCmdDesc());
+                            }
+                            break;
+                        }
+                        case "制冷": {
+                            for (Aircon aircon:aircons){
+                                if (aircon.getMode().equals("制冷")) continue;
+                                DeviceUtils.sendCmd(deviceId, CmdEnum.AIR_MODE_COOL.getCmdValue() + "_" + aircon.getId(), timeout);
+                                airconService.modeCool(aircon.getId());
+                                logService.saveCmdLog(aircon, CmdEnum.AIR_MODE_COOL.getCmdDesc());
+                            }
+                            break;
+                        }
+                        case "制热": {
+                            for (Aircon aircon:aircons){
+                                if (aircon.getMode().equals("制热")) continue;
+                                DeviceUtils.sendCmd(deviceId, CmdEnum.AIR_MODE_HOT.getCmdValue() + "_" + aircon.getId(), timeout);
+                                airconService.modeHot(aircon.getId());
+                                logService.saveCmdLog(aircon, CmdEnum.AIR_MODE_HOT.getCmdDesc());
+                            }
+                            break;
+                        }
+                        case "通风": {
+                            for (Aircon aircon:aircons){
+                                if (aircon.getMode().equals("通风")) continue;
+                                DeviceUtils.sendCmd(deviceId, CmdEnum.AIR_MODE_DRY.getCmdValue() + "_" + aircon.getId(), timeout);
+                                airconService.modeDry(aircon.getId());
+                                logService.saveCmdLog(aircon, CmdEnum.AIR_MODE_DRY.getCmdDesc());
+                            }
+                            break;
+                        }
+                        case "节能": {
+                            for (Aircon aircon:aircons){
+                                if (aircon.getMode().equals("节能")) continue;
+                                DeviceUtils.sendCmd(deviceId, CmdEnum.AIR_MODE_Econo.getCmdValue() + "_" + aircon.getId(), timeout);
+                                airconService.modeEcono(aircon.getId());
+                                logService.saveCmdLog(aircon, CmdEnum.AIR_MODE_Econo.getCmdDesc());
+                            }
+                            break;
+                        }
+                        default: {
+                            return Result.error().setData("mes", "key应该为自动, 制冷, 制热, 通风, 节能, 实际为" + value);
+                        }
+                    }
+                    break;
+                }
+                case "风速":{
+                    List<String> speeds = Arrays.asList("0", "1", "2", "3", "4");
+                    if (!speeds.contains(value)) return Result.error().setData("mes", "风速0~4, 实际为" + value);
+                    for (Aircon aircon:aircons){
+                        if (aircon.getWindSpeed().equals(value)) continue;
+                        DeviceUtils.sendCmd(deviceId, CmdEnum.AIR_SET_FUN_.getCmdValue() + value + "_" + aircon.getId(), timeout);
+                        airconService.windSpeed(aircon.getId(), value);
+                        logService.saveCmdLog(aircon, CmdEnum.AIR_SET_FUN_.getCmdDesc() + "为" + value);
+                    }
+                    break;
+                }
+                case "温度":{
+                    try {
+//                        if (value.contains(".")) return Result.error().setData("mes", "温度必须是整数, 实际为" + value);
+                        if (Integer.parseInt(value) < 16 || Integer.parseInt(value) > 30)
+                            return Result.error().setData("mes", "温度16~30, 实际为" + value);
+                    }catch (ConversionException e){
+                        log.info("整数转换异常", e);
+                        return Result.error().setData("mes", "温度必须是整数, 实际为" + value);
+                    }
+                    for (Aircon aircon:aircons){
+                        if (String.valueOf(aircon.getTemper()).equals(value)) continue;
+                        DeviceUtils.sendCmd(deviceId, CmdEnum.AIR_SET_TEMP_.getCmdValue() + value + "_" + aircon.getId(), timeout);
+                        airconService.temper(aircon.getId(), value);
+                        logService.saveCmdLog(aircon, CmdEnum.AIR_SET_TEMP_.getCmdDesc() + "为" + value);
+                    }
+                    break;
+                }
+                default:{
+                    return Result.error().setData("mes", "key应该为模式, 风速, 温度. 实际为" + key);
+                }
+            }
+            return Result.success().setData("mes", "设置房间" + room.getPosition() + "所有空调的" + key + "为" + value + "成功");
+        }else {
+            return Result.error().setData("mes", "没有找到标识为" + roomId + "的房间");
+        }
+    }
+
+    /**
+     * 语音识别-设置房间的所有灯泡亮度
+     * @param roomId 房间标识
+     * @param value 亮度的值
+     * @return Result
+     */
+    @PutMapping("allLightSet")
+    @ApiOperation("语音识别-设置房间的所有灯泡亮度")
+    public Result allLightSet(@ApiParam(value = "房间标识", required = true) @RequestParam("roomId") String roomId,
+                              @ApiParam(value = "目标亮度[0~100]整数", required = true) @RequestParam("value") String value){
+        Room room = roomService.getById(roomId);
+        if (room != null){
+            List<Light> lights = lightService.list(new LambdaQueryWrapper<Light>().eq(Light::getRoomId, roomId));
+            try {
+                if (Integer.parseInt(value) < 0 || Integer.parseInt(value) > 100)
+                    return Result.error().setData("mes", "亮度为0~100, 实际为" + value);
+            }catch (ConversionException e) {
+                return Result.error().setData("mes", "整数转换错误");
+            }
+            // 遍历所有灯泡将所有灯泡开启
+            for (Light light:lights){
+                if (light.getState() == 1) continue;
+                DeviceUtils.sendCmd(deviceId, CmdEnum.LIGHT_SWITCH_ON.getCmdValue() + "_" + light.getId(), timeout);
+                lightService.on(light.getId());
+                logService.saveCmdLog(light, CmdEnum.LIGHT_SWITCH_ON.getCmdDesc());
+            }
+            // 遍历所有灯泡设置灯泡亮度
+            for (Light light:lights){
+                if (light.getIntensity() == Integer.parseInt(value)) continue;
+                DeviceUtils.sendCmd(deviceId, CmdEnum.LIGHT_SET_INTENSITY_.getCmdValue() + value + "_" + light.getId(), timeout);
+                lightService.intensity(light.getId(), value);
+                logService.saveCmdLog(light, CmdEnum.LIGHT_SET_INTENSITY_.getCmdDesc() + "为" + value);
+            }
+            return Result.success().setData("mes", "设置房间" + room.getPosition() + "所有灯泡的亮度为" + value + "成功");
+        }else {
+            return Result.error().setData("mes", "没有找到标识为" + roomId + "的房间");
+        }
+    }
 }

@@ -45,6 +45,18 @@ public class Result {
     }
 
     /**
+     * 返回异常结果
+     * @return Result
+     */
+    public static Result except(){
+        return new Result()
+                .setIsSuccess(false)
+                .setCode(ResultCode.EXCEPT.getResultValue())
+                .setMessage("出现异常")
+                .setData(new HashMap<>());
+    }
+
+    /**
      * 设置Result里面的内容
      * @param data 数据
      * @return Result

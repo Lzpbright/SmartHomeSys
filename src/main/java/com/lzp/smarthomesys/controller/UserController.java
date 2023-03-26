@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
@@ -85,7 +84,7 @@ public class UserController {
             if (authCode.equals(authCodes.get(email))) {
                 authCodes.remove(email);
                 User user = new User();
-                user.setEmail(email).setPassword(Base64Utils.encode(password));
+                user.setEmail(email).setPassword(Base64Utils.encodeText(password));
                 service.save(user);
 
                 // 默认房间
@@ -125,7 +124,7 @@ public class UserController {
     public Result login(@ApiParam(value = "邮箱", required = true) @RequestParam("email") String email,
                         @ApiParam(value = "密码", required = true) @RequestParam("password") String password){
         LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(User::getEmail, email).eq(User::getPassword, Base64Utils.encode(password));
+        wrapper.eq(User::getEmail, email).eq(User::getPassword, Base64Utils.encodeText(password));
         User user = service.getOne(wrapper);
         if (user == null){
             return Result.error().setData("mes", "账号或密码错误");
@@ -181,7 +180,7 @@ public class UserController {
                 authCodes.remove(email);
                 User user = new User();
                 user.setId(id);
-                user.setPassword(Base64Utils.encode(newPassword));
+                user.setPassword(Base64Utils.encodeText(newPassword));
                 service.updateById(user);
                 return Result.success().setData("mes", "修改成功");
             } else {

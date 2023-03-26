@@ -1,0 +1,55 @@
+# 生产环境
+# 已有配置
+server:
+  port: 8081  # 设置启动端口
+spring:
+  datasource:  # 数据源信息
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://47.92.153.40:3306/smarthomesys?serverTimezone=GMT%2B8 # 47.92.153.40
+    username: root
+    password: Pwd@123456 # Pwd@123456
+  mvc:
+    pathmatch:
+      matching-strategy: ANT_PATH_MATCHER # swagger3之后需要设置
+  mail: # 邮箱配置
+    default-encoding: utf-8 # 邮箱默认编码
+    host: smtp.qq.com # 邮箱服务器名
+    username: lzpBright@qq.com  # 发送账户
+    password: eeddhsgikcntdefe  # 邮箱授权码
+    port: 587 # 服务器端口
+  servlet:
+    multipart:
+      max-file-size: 20MB # 上传文件最大为50MB
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl # 设置mybatis-plus的log
+  mapper-locations: classpath:mapperXML/*.xml # mapperXML的地址
+  global-config:
+    db-config:
+      logic-not-delete-value: 0 # 逻辑删除，0表示没有删除
+      logic-delete-value: 1 # 逻辑删除，1表示删除
+      logic-delete-field: deleted # deleted作为逻辑删除辅助字段
+      id-type: assign_id  # 对于主键，均采取雪花算法自动生成19位长度
+  type-aliases-package: com.lzp.smarthomesys.entity # 取别名，这样xml文件的返回类型只要写一个Student就可以了
+
+# 自定义配置
+onenet:
+  accessKey: 9aVh07RAj13tIqQM5FM6bJbB5jJx5a/oJIg7BokHeqc= # 产品的access_key
+  productId: 569568 # onenet产品ID
+  version: 2018-10-31 # 版本号，无需改动
+  api_key: eaoh5qproOYKR8cmLoD0ZGLyvhY= # 产品apikey
+  device_id: 1037659370 # 设备id
+  timeout: 30 # 等待响应时间单位为秒
+images:
+  accessPath: /userIcons/ # 访问头像的虚拟路径
+  actualPath: /usr/local/files/userIcons/ # linux系统头衔真实路径
+audio:
+  accessPath: /audio/ # 访问语音的虚拟路径
+  actualPath: /usr/local/files/audio/ # 访问语音的真实路径
+aliyun:
+  url: https://nls-gateway-cn-shanghai.aliyuncs.com/stream/v1/asr # 语音识别接口地址
+  apikey: SEUNvgUev8UbWM02 # 语音识别的apikey
+  rate: 16000 # 语音识别的音频文件的音频参数,额每秒记录16000次的那个属性
+  accessKeyId: LTAI5tMQkhDxYgbFBSioBMk9 # 阿里云的访问密钥id
+  accessKeySecret: gj6jcJWJCqXV5oWQyFnVNKN0K6SjH9 # 阿里云访问云产品的密钥
+  tokenPath: /usr/local/files/audio/ # 保存语音识别token的路径

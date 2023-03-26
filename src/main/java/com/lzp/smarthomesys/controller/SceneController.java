@@ -1,7 +1,6 @@
 package com.lzp.smarthomesys.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.lzp.smarthomesys.entity.*;
 import com.lzp.smarthomesys.service.impl.*;
 import com.lzp.smarthomesys.utils.Result;

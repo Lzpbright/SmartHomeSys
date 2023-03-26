@@ -10,9 +10,11 @@ import java.util.Arrays;
 public class KelvinAndRGBUtilsTest {
 //    @Test
 //    void convertKelvinToRGBTest (){
-//        for (int i = 0; i <= 99; i++){
+//        System.out.print("[");
+//        for (int i = 0; i <= 100; i++){
 //            int[] ints = ColorUtils.gradientColor(i);
-//            System.out.println(i + ":" + ints[0] + "," + ints[1] + "," + ints[2]);
+//            System.out.println("[" + ints[0] + "," + ints[1] + "," + ints[2] + "],");
 //        }
+//        System.out.print("]");
 //    }
 }

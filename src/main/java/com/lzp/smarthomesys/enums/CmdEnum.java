@@ -27,6 +27,8 @@ public enum CmdEnum {
     LIGHT_SWITCH_OFF("LIGHT_SWITCH_ON", "灯泡关"),
     // 亮度调节
     LIGHT_SET_INTENSITY_("LIGHT_SET_INTENSITY_", "设置灯泡亮度"),
+    // 颜色设置
+    LIGHT_SET_COLOR_("LIGHT_SET_COLOR_", "设置灯泡颜色"),
 
     // 其他电器
 
