@@ -1,7 +1,5 @@
 package com.lzp.smarthomesys.utils;
 
-import sun.misc.BASE64Decoder;
-
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -18,20 +16,6 @@ public class Base64Utils {
     private static final Base64.Decoder decoder = Base64.getDecoder();
 
     /**
-     * Base64解码
-     *
-     * @param bytes Base64加密的字节码
-     * @return String
-     * @throws IOException IOException
-     */
-    public static String Base64Decode(byte[] bytes)
-            throws IOException {
-        BASE64Decoder base64decoder = new BASE64Decoder();
-        byte[] bs = base64decoder.decodeBuffer(new String(bytes));
-        return new String(bs, StandardCharsets.UTF_8);
-    }
-
-    /**
      * Base64加密
      *
      * @param text 待加密内容
@@ -46,7 +30,6 @@ public class Base64Utils {
      *
      * @param encodedText Base64加密后内容
      * @return String
-     * @throws IOException IOException
      */
     public static String decode(String encodedText) {
         return new String(decoder.decode(encodedText), StandardCharsets.UTF_8);

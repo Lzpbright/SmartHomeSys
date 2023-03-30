@@ -105,11 +105,8 @@ public class TokenUtils {
     /**
      * 获取onenet平台的授权码
      * @return token
-     * @throws UnsupportedEncodingException UnsupportedEncodingException
-     * @throws NoSuchAlgorithmException NoSuchAlgorithmException
-     * @throws InvalidKeyException InvalidKeyException
      */
-    public static String getOneNetToken() throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException {
+    public static String getOneNetToken() {
         String productId = tokenUtils.productId;
         String accessKey = tokenUtils.accessKey;
         String version = tokenUtils.version;
@@ -119,7 +116,11 @@ public class TokenUtils {
         String expirationTime = System.currentTimeMillis() / 1000 + 365 * 24 * 60 * 60 + "";    // 1年
         //签名方法，支持md5、sha1、sha256
         String signatureMethod = SignatureMethod.SHA1.name().toLowerCase();
-        return assembleToken(version, resourceName, expirationTime, signatureMethod, accessKey);
+        try {
+            return assembleToken(version, resourceName, expirationTime, signatureMethod, accessKey);
+        } catch (UnsupportedEncodingException | NoSuchAlgorithmException | InvalidKeyException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 

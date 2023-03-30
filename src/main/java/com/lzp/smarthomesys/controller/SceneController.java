@@ -212,7 +212,7 @@ public class SceneController {
                     deviceList.addAll(lightList);
                     deviceList.addAll(lockList);
                     deviceList.addAll(otherList);
-                    result.put("房间" + room.getId(), SceneUtils.onOrOff(id, deviceList, appliances, "开启"));
+                    result.put("房间" + room.getId(), SceneUtils.onOrOff(deviceList, appliances, "开启"));
                 }
                 result.put("场景电器", appliances);
                 scene.setState(1);
@@ -270,7 +270,7 @@ public class SceneController {
                     deviceList.addAll(lightList);
                     deviceList.addAll(lockList);
                     deviceList.addAll(otherList);
-                    result.put("房间" + room.getId(), SceneUtils.onOrOff(id, deviceList, appliances, "关闭"));
+                    result.put("房间" + room.getId(), SceneUtils.onOrOff(deviceList, appliances, "关闭"));
                 }
                 result.put("场景电器", appliances);
                 scene.setState(0);

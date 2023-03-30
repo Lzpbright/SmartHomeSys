@@ -44,7 +44,7 @@ public class UserController {
     LockServiceImpl lockService;
 
 
-    private Map<String, String> authCodes = new HashMap<>();
+    private final Map<String, String> authCodes = new HashMap<>();
 
     /**
      * 发送邮箱验证码

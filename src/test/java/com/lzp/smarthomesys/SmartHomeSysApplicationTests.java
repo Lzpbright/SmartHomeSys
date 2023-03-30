@@ -1,11 +1,14 @@
 package com.lzp.smarthomesys;
 
+import com.baomidou.mybatisplus.generator.FastAutoGenerator;
+import com.baomidou.mybatisplus.generator.engine.FreemarkerTemplateEngine;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 class SmartHomeSysApplicationTests {
-
-//	@Test
+//
+//	@ScheduleTask
 //	void smarthomesys(){
 //		FastAutoGenerator.create("jdbc:mysql://localhost:3306/smarthomesys?serverTimezone=GMT%2B8", "root", "123456")
 //				.globalConfig(builder -> { // 全局配置器
@@ -20,7 +23,7 @@ class SmartHomeSysApplicationTests {
 //					// .pathInfo(Collections.singletonMap(OutputFile.xml, "D://")); // 设置mapperXml生成路径 // 默认的了
 //				})
 //				.strategyConfig(builder -> { // 策略配置器
-//					builder.addInclude("aircon", "light", "lock", "log", "other", "room", "scene", "user") // 设置需要生成的表名
+//					builder.addInclude("aircon", "light", "lock", "log", "other", "room", "scene", "user", "scenePlan") // 设置需要生成的表名
 //							.addTablePrefix("t_", "c_")// 设置过滤表前缀
 //							.entityBuilder() // 对于实体层的配置
 //							.enableLombok() // 开启lombok
@@ -32,13 +35,13 @@ class SmartHomeSysApplicationTests {
 //				.execute();
 //	}
 //
-//	@Test
+//	@ScheduleTask
 //	void sendGetUtil() throws IOException {
 //		String result = HttpUtils.sendGet("http://47.92.153.40:8080/light/queryAll", null, null);
 //		System.out.println(result);
 //	}
 //
-//	@Test
+//	@ScheduleTask
 //	void sendPostUtil_Map(){
 //		Map<String,String> map = new HashMap<>();
 //		map.put("brand", "鹏哥电器");
@@ -50,7 +53,7 @@ class SmartHomeSysApplicationTests {
 //		System.out.println(result);
 //	}
 //
-//	@Test
+//	@ScheduleTask
 //	void sendPostUtil_Json(){
 //		Map<String,String> map = new HashMap<>();
 //		map.put("brand", "鹏哥电器");
@@ -65,13 +68,13 @@ class SmartHomeSysApplicationTests {
 //	@Autowired
 //	LogServiceImpl service;
 //
-//	@Test
+//	@ScheduleTask
 //	void logTest001(){
 //		List<Log> list = service.list();
 //		list.forEach(System.out::println);
 //	}
 //
-//	@Test
+//	@ScheduleTask
 //	void logTest002(){
 //		Log log = new Log();
 //		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -83,7 +86,7 @@ class SmartHomeSysApplicationTests {
 //		System.out.println("save = " + save);
 //	}
 //
-//	@Test
+//	@ScheduleTask
 //	void logTest003(){
 //		boolean save = service.removeById("1");
 //		System.out.println("save = " + save);
@@ -92,7 +95,7 @@ class SmartHomeSysApplicationTests {
 //	@Autowired
 //	UserServiceImpl userService;
 //
-//	@Test
+//	@ScheduleTask
 //	void userTest001(){
 //		boolean b = userService.removeById(1);
 //
@@ -102,7 +105,7 @@ class SmartHomeSysApplicationTests {
 //	@Resource
 //	LockServiceImpl lockService;
 //
-//	@Test
+//	@ScheduleTask
 //	void lockTest001(){
 //		LambdaQueryWrapper<Lock> wrapper = new LambdaQueryWrapper<>();
 //		wrapper.eq(Lock::getRoomId, "2");
@@ -110,7 +113,7 @@ class SmartHomeSysApplicationTests {
 //		list.forEach(System.out::println);
 //	}
 //
-//    @Test
+//    @ScheduleTask
 //    public void tokenTest() throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException {
 //        String token = TokenUtils.getOneNetToken();
 //        System.out.println("token = " + token);
@@ -120,7 +123,7 @@ class SmartHomeSysApplicationTests {
 //    @Resource
 //    SceneServiceImpl sceneService;
 //
-//    @Test
+//    @ScheduleTask
 //    public void test0001(){
 //        Scene scene = sceneService.getById("1629310009525506049");
 //        String appliance = scene.getAppliance();

@@ -8,7 +8,7 @@ import java.util.Arrays;
 
 //@SpringBootTest
 public class KelvinAndRGBUtilsTest {
-//    @Test
+//    @ScheduleTask
 //    void convertKelvinToRGBTest (){
 //        System.out.print("[");
 //        for (int i = 0; i <= 100; i++){

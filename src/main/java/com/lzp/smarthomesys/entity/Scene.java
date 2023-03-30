@@ -2,6 +2,7 @@ package com.lzp.smarthomesys.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -22,6 +23,7 @@ import lombok.experimental.Accessors;
 @ApiModel(value = "Scene对象")
 @AllArgsConstructor
 @NoArgsConstructor
+@TableName("scene")
 public class Scene {
 
     @TableId("id")

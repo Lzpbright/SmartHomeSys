@@ -41,7 +41,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     }
 
     /**
-     * 跨域解决
+     * use: 跨域解决
      */
     @Override
     public void addCorsMappings(CorsRegistry registry) {

@@ -14,7 +14,7 @@ import java.util.Map;
 
 public class HttpTest {
 
-//    @Test
+//    @ScheduleTask
 //    public void testGet() throws IOException, NoSuchAlgorithmException, InvalidKeyException {
 //        String url = "http://api.heclouds.com/cmds?device_id=" + "1037659370" + "&timeout=30";
 //        Map<String, String> headers = new HashMap<>();
@@ -26,12 +26,12 @@ public class HttpTest {
 //        System.out.println("res = " + res);
 //    }
 //
-//    @Test
+//    @ScheduleTask
 //    public void testDeviceUtils(){
 //        System.out.println(DeviceUtils.sendCmd("1037659370", "LED_LED1_OFF", "30"));
 //    }
 
-//    @Test
+//    @ScheduleTask
 //    public void testAddDevice(){
 //        System.out.println(DeviceUtils.addDevice("testDevice", "firstTest"));
 //    }
@@ -40,7 +40,7 @@ public class HttpTest {
 //
 //    static final OkHttpClient HTTP_CLIENT = new OkHttpClient().newBuilder().build();
 //
-//    @Test
+//    @ScheduleTask
 //    public void testYuYinShiBie() throws IOException, JSONException {
 //        System.out.println("########" + getAccessToken());
 //        String url = "https://vop.baidu.com/server_api";
@@ -98,7 +98,7 @@ public class HttpTest {
 //        return new JSONObject(response.body().string()).getString("access_token");
 //    }
 
-//    @Test
+//    @ScheduleTask
 //    public void test001(){
 //        String url = "https://nls-gateway-cn-shanghai.aliyuncs.com/stream/v1/asr";
 //        File file = new File("E:\\IDEAProject\\SmartHomeSys\\src\\main\\java\\com\\lzp\\smarthomesys\\utils\\你好.wav");
@@ -111,8 +111,13 @@ public class HttpTest {
 //        System.out.println("res = " + res);
 //    }
 
-//    @Test
+//    @ScheduleTask
 //    public void test0001(){
 //        System.out.println(Integer.parseInt("1.2"));
 //    }
+
+    @Test
+    void OneNetMesGetTest(){
+
+    }
 }

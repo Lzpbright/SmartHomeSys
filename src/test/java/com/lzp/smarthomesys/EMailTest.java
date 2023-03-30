@@ -49,7 +49,7 @@ public class EMailTest {
 ////            System.out.println("邮件发送失败。" + e.getMessage());
 ////        }
 ////    }
-//    @Test
+//    @ScheduleTask
 //    void sendEMailTest(){
 //        Random rand = new Random();
 //        int randomNum = rand.nextInt(100000); // 生成0-99999的随机整数

@@ -52,6 +52,9 @@ public class RoomController {
     private OtherServiceImpl otherService;
 
     @Resource
+    private SceneServiceImpl sceneService;
+
+    @Resource
     private LogServiceImpl logService;
 
     @Resource
@@ -292,7 +295,7 @@ public class RoomController {
                         @ApiParam(value = "选择0[关闭]或1[开启]", required = true) @RequestParam("op") Integer op){
         // 默认是关闭命令
         Integer state = 1;
-        String cmdStr = CmdEnum.LIGHT_SWITCH_OFF.getCmdDesc();;
+        String cmdStr = CmdEnum.LIGHT_SWITCH_OFF.getCmdDesc();
         String onOrOff = "关闭";
         // 如果是开启命令则进行修改
         if (op == 1){
@@ -337,7 +340,7 @@ public class RoomController {
      * @return Result
      */
     @DeleteMapping("/deleteRoom")
-    @ApiOperation("通过标识删除房间以及房间里面所有电器")
+    @ApiOperation("通过标识删除房间, 房间里的电器, 房间里的场景")
     public Result deleteRoom(@ApiParam(value = "房间标识", required = true) @RequestParam("roomId") String roomId){
         Room room = roomService.getById(roomId);
         if (room != null){
@@ -346,6 +349,8 @@ public class RoomController {
             lightService.remove(new LambdaQueryWrapper<Light>().eq(Light::getRoomId, roomId));
             lockService.remove(new LambdaQueryWrapper<Lock>().eq(Lock::getRoomId, roomId));
             otherService.remove(new LambdaQueryWrapper<Other>().eq(Other::getRoomId, roomId));
+            // 删除房间所有场景
+            sceneService.remove(new LambdaQueryWrapper<Scene>().eq(Scene::getRoomId, roomId));
             // 删除房间
             roomService.removeById(roomId);
             return Result.success().setData("mes", "删除标识为" + roomId + "的房间成功");
@@ -555,7 +560,7 @@ public class RoomController {
                                  @ApiParam(value = "选择0[关闭]或1[开启]", required = true) @RequestParam("op") Integer op){
         // 默认是关闭命令
         Integer state = 1;
-        String cmdStr = CmdEnum.AIR_SWITCH_OFF.getCmdDesc();;
+        String cmdStr = CmdEnum.AIR_SWITCH_OFF.getCmdDesc();
         String onOrOff = "关闭";
         // 如果是开启命令则进行修改
         if (op == 1){

@@ -12,8 +12,8 @@ public class GlobalExceptionHandler {
      * @param e 异常
      * @return Result
      */
-    @ExceptionHandler(Exception.class)
-    public Result ExceptionHandler(Exception e){
-        return Result.except().setData("异常信息", e.getMessage());
-    }
+//    @ExceptionHandler(Exception.class)
+//    public Result ExceptionHandler(Exception e){
+//        return Result.except().setData("异常信息", e.getMessage());
+//    }
 }

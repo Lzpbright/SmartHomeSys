@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 public class HttpUtils {
+
     /**
      * use: 用来对关闭流的封装
      * @param response response
@@ -51,7 +52,7 @@ public class HttpUtils {
      * @param params 参数
      * @return String
      */
-    public static String sendGet(String url, Map<String, String> headers, Map<String,String> params) throws IOException {
+    public static String sendGet(String url, Map<String, String> headers, Map<String,String> params) {
         CloseableHttpClient httpClient = null;
         HttpGet httpGet = null;
         CloseableHttpResponse response = null;

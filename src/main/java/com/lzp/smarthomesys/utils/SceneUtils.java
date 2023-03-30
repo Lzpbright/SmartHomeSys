@@ -48,13 +48,12 @@ public class SceneUtils {
 
     /**
      * 开启或者关闭场景
-     * @param id 场景标识
      * @param deviceList 设备列表
      * @param appliances 场景电器
      * @param strategy 开或者关
      * @return Map<Object, Object>
      */
-    public static Map<Object, Object> onOrOff(String id, List<IDevice> deviceList, String appliances, String strategy){
+    public static Map<Object, Object> onOrOff(List<IDevice> deviceList, String appliances, String strategy){
         String deviceId = sceneUtils.deviceId;
         String timeout = sceneUtils.timeout;
         LogServiceImpl logService = sceneUtils.logService;
@@ -127,7 +126,7 @@ public class SceneUtils {
                     des2 = CmdEnum.OTHER_SWITCH_ON.getCmdDesc();
                 }
             }
-
+            if (appliances == null) appliances = "";
             String temp = type + "," + device.getId();
             if (strategy == "开启") {
                 if (appliances.contains(temp)) {

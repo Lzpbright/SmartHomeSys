@@ -1,6 +1,18 @@
 package com.lzp.smarthomesys;
 
+import com.lzp.smarthomesys.controller.UserController;
+import com.lzp.smarthomesys.utils.Result;
+import com.lzp.smarthomesys.utils.TokenUtils;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import javax.annotation.Resource;
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.sql.Time;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 @SpringBootTest
 public class GeneralTest {
@@ -11,7 +23,7 @@ public class GeneralTest {
 //    @Value("${aliyun.accessKeySecret}")
 //    public String akSecret;
 
-//    @Test
+//    @ScheduleTask
 //    public void aliyuntokentest() throws IOException {
 //        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"); // ISO 8601标准
 //        LocalDateTime localDateTime =LocalDateTime.now();
@@ -37,7 +49,7 @@ public class GeneralTest {
 //        System.out.println("res = " + res);
 //    }
 
-//    @Test
+//    @ScheduleTask
 //    public void timeconvertest(){
 //        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 //        LocalDateTime localDateTime =LocalDateTime.now();
@@ -47,7 +59,7 @@ public class GeneralTest {
 //    }
 
 //    @SneakyThrows
-//    @Test
+//    @ScheduleTask
 //    public void test(){
 //        AccessToken accessToken = new AccessToken(akID, akSecret);
 //        accessToken.apply();
@@ -59,7 +71,7 @@ public class GeneralTest {
 //        System.out.println("time = " + time);
 //    }
 
-//    @Test
+//    @ScheduleTask
 //    public void testModifyYaml() throws IOException {
 //        String src = "E:\\IDEAProject\\SmartHomeSys\\src\\main\\resources\\application.yaml";
 //        Yaml yaml = new Yaml();
@@ -80,7 +92,7 @@ public class GeneralTest {
 //        fileWriter.close();
 //    }
 
-//    @Test
+//    @ScheduleTask
 //    public void test() throws IOException {
 //        ClassPathResource classPathResource = new ClassPathResource("appFiles/aliyunToken.txt");
 //        InputStream inputStream = classPathResource.getInputStream();
@@ -96,7 +108,7 @@ public class GeneralTest {
 //        inputStream.close();
 //    }
 
-//    @Test
+//    @ScheduleTask
 //    public void test001(){
 //        FileUtils.modifyAliyunToken("niaha111");
 //        System.out.println(FileUtils.readAliyunToken());
@@ -104,9 +116,37 @@ public class GeneralTest {
 //        System.out.println(FileUtils.readAliyunToken());
 //    }
 //
-//    @Test
+//    @ScheduleTask
 //    public void test002(){
 //        FileUtils.modifyAliyunToken("niahao2");
 //        System.out.println(FileUtils.readAliyunToken());
 //    }
+
+//    @Resource
+//    UserController userController;
+//
+//    @Test
+//    void test0001(){
+//        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+//        String time = sdf.format(System.currentTimeMillis());
+//        String date = sdf.format(new Date());
+//        System.out.println("time = " + time);
+//        System.out.println("date = " + date);
+//        Time time1 = new Time(System.currentTimeMillis());
+//        Time time2 = Time.valueOf("14:59:56");
+//        System.out.println("time1 = " + time1);
+//        System.out.println("time2 = " + time2);
+//        System.out.println(time1.getTime() > time2.getTime());
+//    }
+//
+//    @Test
+//    void test002(){
+//        Result list = userController.list();
+//        System.out.println("list = " + list);
+//    }
+
+    @Test
+    public void test001() throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException {
+        System.out.println("token = " + TokenUtils.getOneNetToken());
+    }
 }
