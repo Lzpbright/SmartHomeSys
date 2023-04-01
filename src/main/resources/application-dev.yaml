@@ -53,3 +53,5 @@ aliyun:
   accessKeyId: LTAI5tMQkhDxYgbFBSioBMk9 # 阿里云的访问密钥id
   accessKeySecret: gj6jcJWJCqXV5oWQyFnVNKN0K6SjH9 # 阿里云访问云产品的密钥
   tokenPath: E:/IDEAProject/SmartHomeSys/src/main/resources/appFiles/ # 保存语音识别token的路径
+weather:
+  key: 66688effa4f403355ede760c79c29e03 # 获取天气的接口密钥，高德开发平台的接口

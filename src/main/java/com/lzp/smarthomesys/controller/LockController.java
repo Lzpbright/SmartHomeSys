@@ -108,8 +108,9 @@ public class LockController {
         return Result.success().setData("lock", locks);
     }
 
+
     @GetMapping("/exceptionTest")
-    @ApiOperation("全局异常测试")
+    @ApiOperation("全局异常测试（测试用）")
     public Result exceptionTest(){
         int a = 1;
         int b= 0;

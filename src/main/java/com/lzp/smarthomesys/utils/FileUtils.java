@@ -1,9 +1,14 @@
 package com.lzp.smarthomesys.utils;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
+import org.springframework.util.FileCopyUtils;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import static java.nio.charset.StandardCharsets.*;
 
@@ -60,5 +65,23 @@ public class FileUtils {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * 最简单的读取文件内容
+     * @param path
+     * @return
+     */
+    public String readFile(String path) {
+        String content = "没有内容哦";
+        ClassPathResource resource = new ClassPathResource("appFiles/cityCode.json");
+        byte[] fileData;
+        try {
+            fileData = FileCopyUtils.copyToByteArray(resource.getInputStream());
+            content = new String(fileData, "UTF-8");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return content;
     }
 }

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.lzp.smarthomesys.controller.SceneController;
 import com.lzp.smarthomesys.entity.ScenePlan;
 import com.lzp.smarthomesys.service.impl.ScenePlanServiceImpl;
+import com.lzp.smarthomesys.service.impl.SceneServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -26,7 +27,7 @@ public class ScheduleTask {
     private ScenePlanServiceImpl scenePlanService;
 
     @Resource
-    private SceneController sceneController;
+    private SceneServiceImpl sceneService;
 
     private List<ScenePlan> scenePlans = new ArrayList<>();
 
@@ -81,7 +82,7 @@ public class ScheduleTask {
 
                 // 如果目前时间已经和开始时间十分接近，就可以激发事件，防止事务执行导致跳过,这里选择500毫秒间隔就可以激发,,,实际上相减只会等于0,因为是以秒为单位
                 if (Math.abs(todayMiles - startLong) <= 500){
-                    sceneController.on(scenePlan.getSceneId());
+                    sceneService.on(scenePlan.getSceneId());
                     log.info("周" + week + "场景" + scenePlan.getId() + "开启, 设定的开启时间为" + startTime + ", 当前时间为" + nowTime);
                     if (daysStr.contains("0") && endLong == Long.MIN_VALUE){
                         scenePlan.setState(0);
@@ -91,7 +92,7 @@ public class ScheduleTask {
                     updateScenePlans();
                 }
                 if (Math.abs(todayMiles - endLong) <= 500){
-                    sceneController.off(scenePlan.getSceneId());
+                    sceneService.off(scenePlan.getSceneId());
                     log.info("周" + week + "场景" + scenePlan.getId() + "关闭, 设定的关闭时间为" + endTime + ", 当前时间为" + nowTime);
                     if (daysStr.contains("0")) {
                         scenePlan.setState(0);

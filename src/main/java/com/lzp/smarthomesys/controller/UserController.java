@@ -1,12 +1,8 @@
 package com.lzp.smarthomesys.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.lzp.smarthomesys.entity.Lock;
-import com.lzp.smarthomesys.entity.Room;
-import com.lzp.smarthomesys.entity.User;
-import com.lzp.smarthomesys.service.impl.LockServiceImpl;
-import com.lzp.smarthomesys.service.impl.RoomServiceImpl;
-import com.lzp.smarthomesys.service.impl.UserServiceImpl;
+import com.lzp.smarthomesys.entity.*;
+import com.lzp.smarthomesys.service.impl.*;
 import com.lzp.smarthomesys.utils.Base64Utils;
 import com.lzp.smarthomesys.utils.EMailUtils;
 import com.lzp.smarthomesys.utils.Result;
@@ -35,13 +31,22 @@ import java.util.*;
 public class UserController {
 
     @Resource
-    UserServiceImpl service;
+    UserServiceImpl userService;
 
     @Resource
     RoomServiceImpl roomService;
 
     @Resource
     LockServiceImpl lockService;
+
+    @Resource
+    AirconServiceImpl airconService;
+
+    @Resource
+    LightServiceImpl lightService;
+
+    @Resource
+    OtherServiceImpl otherService;
 
 
     private final Map<String, String> authCodes = new HashMap<>();
@@ -80,15 +85,15 @@ public class UserController {
                            @ApiParam(value = "验证码", required = true) @RequestParam("authCode") String authCode){
         LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(User::getEmail, email);
-        if (service.getOne(wrapper) == null) {
+        if (userService.getOne(wrapper) == null) {
             if (authCode.equals(authCodes.get(email))) {
                 authCodes.remove(email);
                 User user = new User();
                 user.setEmail(email).setPassword(Base64Utils.encodeText(password));
-                service.save(user);
+                userService.save(user);
 
                 // 默认房间
-                String userId = service.getOne(wrapper).getId();
+                String userId = userService.getOne(wrapper).getId();
                 roomService.save(new Room().setUserId(userId).setPosition("客厅"));
                 roomService.save(new Room().setUserId(userId).setPosition("卧室"));
                 roomService.save(new Room().setUserId(userId).setPosition("厨房"));
@@ -125,7 +130,7 @@ public class UserController {
                         @ApiParam(value = "密码", required = true) @RequestParam("password") String password){
         LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(User::getEmail, email).eq(User::getPassword, Base64Utils.encodeText(password));
-        User user = service.getOne(wrapper);
+        User user = userService.getOne(wrapper);
         if (user == null){
             return Result.error().setData("mes", "账号或密码错误");
         }
@@ -157,7 +162,7 @@ public class UserController {
         user.setSex(Objects.equals(sex, "") ? "暂未设置" : sex);
         user.setLocation(Objects.equals(location, "") ? "暂未设置" : location);
 
-        service.updateById(user);
+        userService.updateById(user);
         return Result.success().setData("mes", "修改成功");
     }
 
@@ -173,7 +178,7 @@ public class UserController {
     public Result modify(@ApiParam(value = "用户标识", required = true) @RequestParam("id") String id,
                          @ApiParam(value = "新密码", required = true) @RequestParam(value = "newPassword") String newPassword,
                          @ApiParam(value = "验证码", required = true) @RequestParam("authCode") String authCode){
-        User u = service.getById(id);
+        User u = userService.getById(id);
         if (u != null) {
             String email = u.getEmail();
             if (authCode.equals(authCodes.get(email))) {
@@ -181,7 +186,7 @@ public class UserController {
                 User user = new User();
                 user.setId(id);
                 user.setPassword(Base64Utils.encodeText(newPassword));
-                service.updateById(user);
+                userService.updateById(user);
                 return Result.success().setData("mes", "修改成功");
             } else {
                 return Result.error().setData("mes", "验证码不匹配");
@@ -200,7 +205,7 @@ public class UserController {
     @ApiOperation("标识获取用户信息")
     @GetMapping("/getById")
     public Result modify(@ApiParam(value = "用户标识", required = true) @RequestParam("id") String id) {
-        User user = service.getById(id);
+        User user = userService.getById(id);
         if (user != null) {
             return Result.success().setData("user", user);
         }
@@ -235,7 +240,7 @@ public class UserController {
                     String url = UploadUtils.uploads(file);
                     User user = new User();
                     user.setId(id).setUserIcon(url);
-                    service.updateById(user);
+                    userService.updateById(user);
                     return Result.success().setData("url", url);
                 }
             }else {
@@ -247,6 +252,29 @@ public class UserController {
         }
     }
 
+    @GetMapping("/getDevicesNum")
+    @ApiOperation("获取用户电器的数目")
+    public Result getDevicesNum(@ApiParam(value = "用户标识", required = true) @RequestParam("userId") String userId){
+        int nums = 0;
+        // 判断用户是否存在
+        User user = userService.getById(userId);
+        if (user != null){
+            // 通过用户获取用户所有房间
+            List<Room> rooms = roomService.list(new LambdaQueryWrapper<Room>().eq(Room::getUserId, userId));
+            // 遍历所有房间,获取房间里面的电器
+            for (Room room:rooms){
+                // 空调
+                nums += airconService.list(new LambdaQueryWrapper<Aircon>().eq(Aircon::getRoomId, room.getId())).size();
+                nums += lightService.list(new LambdaQueryWrapper<Light>().eq(Light::getRoomId, room.getId())).size();
+                nums += lockService.list(new LambdaQueryWrapper<Lock>().eq(Lock::getRoomId, room.getId())).size();
+                nums += otherService.list(new LambdaQueryWrapper<Other>().eq(Other::getRoomId, room.getId())).size();
+            }
+            return Result.success().setData("devicesNum", nums);
+        }else {
+            return Result.error().setData("mes", "没有找到标识为" + userId + "用户");
+        }
+    }
+
     /**
      * 通过标识获取所有用户
      * @return Result
@@ -254,6 +282,6 @@ public class UserController {
     @GetMapping("/list")
     @ApiOperation("获取所有用户")
     public Result list(){
-        return Result.success().setData("mes", service.list());
+        return Result.success().setData("mes", userService.list());
     }
 }

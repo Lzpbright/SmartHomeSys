@@ -91,17 +91,18 @@ public class LightController {
     @GetMapping("/intensity")
     @ApiOperation("设置亮度")
     public Result intensity(@ApiParam(value = "灯泡标识", required = true) @RequestParam("id") String id,
-                            @ApiParam(value = "目标亮度（0~100）", required = true) @RequestParam("value") String value){
-        if (lightService.getById(id) == null) return Result.error().setData("mes", "没有标识为" + id + "的灯泡");
-        if (Integer.parseInt(value) >= 0 && Integer.parseInt(value) <= 100){
-            String res = DeviceUtils.sendCmd(deviceId, CmdEnum.LIGHT_SET_INTENSITY_.getCmdValue() + String.format("%03d", Integer.parseInt(value)) + "_" + id, timeout);
+                            @ApiParam(value = "目标亮度（0~99）", required = true) @RequestParam("value") String value){
+        Light light = lightService.getById(id);
+        if (light == null) return Result.error().setData("mes", "没有标识为" + id + "的灯泡");
+        if (light.getIntensity() == Integer.parseInt(value)) return Result.success().setData("mes", "没有进行任何操作");
+        if (Integer.parseInt(value) >= 0 && Integer.parseInt(value) <= 99){
+            String res = DeviceUtils.sendCmd(deviceId, CmdEnum.LIGHT_SET_INTENSITY_.getCmdValue() + String.format("%02d", Integer.parseInt(value)) + "_" + id, timeout);
             JSONObject resJson = JSONObject.parseObject(res);
             Object error = resJson.get("error").toString();
-            Light light = lightService.getById(id);
             if (light.getState() == 1) {
                 if (error.equals("succ")) {
                     lightService.intensity(id, value);
-                    logService.saveCmdLog(lightService.getById(id), CmdEnum.LIGHT_SET_INTENSITY_.getCmdDesc() + "为" + String.format("%03d", Integer.parseInt(value)));
+                    logService.saveCmdLog(light, CmdEnum.LIGHT_SET_INTENSITY_.getCmdDesc() + "为" + String.format("%02d", Integer.parseInt(value)));
                     return Result.success().setData("res", res);
                 } else {
                     return Result.error().setData("res", res);
@@ -111,7 +112,7 @@ public class LightController {
                 return Result.error().setData("mes", "灯泡未开启");
             }
         }else {
-            return Result.error().setData("mes", "亮度范围为0~100");
+            return Result.error().setData("mes", "亮度范围为0~99");
         }
     }
 
@@ -143,7 +144,7 @@ public class LightController {
 
     /**
      * 通过标识设计灯泡颜色
-     * @param id 标识
+     * @param id 灯泡标识
      * @param red 红色
      * @param green 绿色
      * @param blue 蓝色

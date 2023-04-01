@@ -45,4 +45,8 @@ public class Room {
     @TableField("deleted")
     @ApiModelProperty("逻辑删除标志, 0表示未删除, 1表示删除")
     private Integer deleted;
+
+    @TableField(exist = false)
+    @ApiModelProperty("房间设备数目")
+    private Integer deviceNum;
 }

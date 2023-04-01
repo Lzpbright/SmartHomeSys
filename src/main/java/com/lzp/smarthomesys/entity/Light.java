@@ -59,7 +59,7 @@ public class Light implements IDevice {
     private String color;
 
     @TableField("intensity")
-    @ApiModelProperty("光强度，（0~100）*额定功率")
+    @ApiModelProperty("光强度，（0~99）*额定功率")
     private Integer intensity;
 
     @TableField("deleted")

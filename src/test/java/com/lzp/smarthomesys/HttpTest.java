@@ -115,9 +115,9 @@ public class HttpTest {
 //    public void test0001(){
 //        System.out.println(Integer.parseInt("1.2"));
 //    }
-
-    @Test
-    void OneNetMesGetTest(){
-
-    }
+//
+//    @Test
+//    void OneNetMesGetTest(){
+//
+//    }
 }

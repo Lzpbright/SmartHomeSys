@@ -1,6 +1,9 @@
 package com.lzp.smarthomesys;
 
+import com.alibaba.fastjson.JSONObject;
 import com.lzp.smarthomesys.controller.UserController;
+import com.lzp.smarthomesys.utils.FileUtils;
+import com.lzp.smarthomesys.utils.HttpUtils;
 import com.lzp.smarthomesys.utils.Result;
 import com.lzp.smarthomesys.utils.TokenUtils;
 import org.junit.jupiter.api.Test;
@@ -13,8 +16,10 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
-@SpringBootTest
+//@SpringBootTest
 public class GeneralTest {
 
 //    @Value("${aliyun.accessKeyId}")
@@ -145,8 +150,21 @@ public class GeneralTest {
 //        System.out.println("list = " + list);
 //    }
 
-    @Test
-    public void test001() throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException {
-        System.out.println("token = " + TokenUtils.getOneNetToken());
-    }
+//    @Test
+//    public void test001() throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeyException {
+//        System.out.println("token = " + TokenUtils.getOneNetToken());
+//    }
+
+//    @Test
+//    void test001() {
+//        String url = "https://restapi.amap.com/v3/weather/weatherInfo?key=66688effa4f403355ede760c79c29e03&city=110000";
+//        String res = HttpUtils.sendGet(url, new HashMap<>(), new HashMap<>());
+//        System.out.println("res = " + res);
+//    }
+
+//    @Test
+//    void test001(){
+//        JSONObject jsonObject = JSONObject.parseObject(new FileUtils().readFile("src/main/resources/appFiles/cityCode.json"));
+//        System.out.println("jsonObject = " + jsonObject);
+//    }
 }

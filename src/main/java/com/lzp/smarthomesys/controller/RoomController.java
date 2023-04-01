@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.lzp.smarthomesys.entity.*;
 import com.lzp.smarthomesys.enums.CmdEnum;
 import com.lzp.smarthomesys.service.impl.*;
+import com.lzp.smarthomesys.tasks.ScheduleTask;
 import com.lzp.smarthomesys.utils.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -60,6 +61,15 @@ public class RoomController {
     @Resource
     private FileUtils fileUtils;
 
+    @Resource
+    private ScenePlanServiceImpl scenePlanService;
+
+    @Resource
+    ScheduleTask scheduleTask;
+
+    @Resource
+    LightController lightController;
+
     @Value("${onenet.device_id}")
     private String deviceId;
 
@@ -94,10 +104,18 @@ public class RoomController {
     @ApiOperation("通过用户标识获取其所有房间")
     @GetMapping("/getByUserId")
     public Result getByUserId(@ApiParam(value = "用户标识", required = true) @RequestParam("userId") String userId){
-        LambdaQueryWrapper<Room> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Room::getUserId, userId);
-        List<Room> rooms = roomService.list(wrapper);
-        return Result.success().setData("rooms", rooms);
+        List<Room> result = new ArrayList<>();
+        List<Room> rooms = roomService.list(new LambdaQueryWrapper<Room>().eq(Room::getUserId, userId));
+        for (Room room:rooms){
+            int devicesNums = 0;
+            devicesNums += airconService.list(new LambdaQueryWrapper<Aircon>().eq(Aircon::getRoomId, room.getId())).size();
+            devicesNums += lightService.list(new LambdaQueryWrapper<Light>().eq(Light::getRoomId, room.getId())).size();
+//            devicesNums += lockService.list(new LambdaQueryWrapper<Lock>().eq(Lock::getRoomId, room.getId())).size(); // 排除了门锁
+            devicesNums += otherService.list(new LambdaQueryWrapper<Other>().eq(Other::getRoomId, room.getId())).size();
+            room.setDeviceNum(devicesNums);
+            result.add(room);
+        }
+        return Result.success().setData("rooms", result);
     }
 
     /**
@@ -105,7 +123,7 @@ public class RoomController {
      * @param roomId 房间id
      * @return Result
      */
-    @ApiOperation("获取本房间所有电器")
+    @ApiOperation("获取本房间所有电器（不包含门锁）")
     @GetMapping("/getDevices")
     public Result getDevices(@ApiParam(value = "房间标识", required = true) @RequestParam("roomId") String roomId){
         Room room = roomService.getById(roomId);
@@ -114,13 +132,13 @@ public class RoomController {
             Map<String, Object> resultMap = new HashMap<>();
             List<Aircon> aircons = airconService.list(new LambdaQueryWrapper<Aircon>().eq(Aircon::getRoomId, roomId));
             List<Light> lights = lightService.list(new LambdaQueryWrapper<Light>().eq(Light::getRoomId, roomId));
-            List<Lock> locks = lockService.list(new LambdaQueryWrapper<Lock>().eq(Lock::getRoomId, roomId));
+//            List<Lock> locks = lockService.list(new LambdaQueryWrapper<Lock>().eq(Lock::getRoomId, roomId)); // 排除了门锁
             List<Other> others = otherService.list(new LambdaQueryWrapper<Other>().eq(Other::getRoomId, roomId));
             deviceMap.put("aircons", aircons);
             deviceMap.put("lights", lights);
-            deviceMap.put("locks", locks);
+//            deviceMap.put("locks", locks); // 排除了门锁
             deviceMap.put("others", others);
-            int devicesNum = aircons.size() + lights.size() + locks.size() + others.size();
+            int devicesNum = aircons.size() + lights.size() + others.size(); // + locks.size()排除了门锁
             resultMap.put("devices", deviceMap);
             resultMap.put("totalDevicesNum", devicesNum);
             return Result.success().setData("result", resultMap);
@@ -241,13 +259,33 @@ public class RoomController {
      * @return Result
      */
     @DeleteMapping("/deleteDevice")
-    @ApiOperation("通过标识删除某电器")
+    @ApiOperation("通过标识删除某电器(场景中的电器也会同时删除，同时场景设置为关闭，相关的场景计划也会设置会关闭)")
     public Result deleteDevice(@ApiParam(value = "设备类别[选择：空调、灯泡、门锁、其他]", required = true) @RequestParam("type") String type,
                                @ApiParam(value = "电器设备标识", required = true) @RequestParam("deviceId") String deviceId){
         switch (type){
             case "空调": {
                 if (airconService.getById(deviceId) != null) {
+                    // 删除电器
                     airconService.removeById(deviceId);
+                    // 修改场景的电器
+                    LambdaQueryWrapper<Scene> sceneWrapper = new LambdaQueryWrapper<>();
+                    sceneWrapper.like(Scene::getAppliance, "," + deviceId + ";");
+                    List<Scene> scenes = sceneService.list(sceneWrapper);
+                    for (Scene scene:scenes){
+                        String appliance = scene.getAppliance().replace("空调," + deviceId + ";", "");
+                        scene.setAppliance(appliance);
+                        scene.setState(0);
+                        sceneService.updateById(scene);
+                        // 修改场景计划将其关闭，不要忘记更新定时任务中的集合了哦
+                        LambdaQueryWrapper<ScenePlan> scenePlanWrapper = new LambdaQueryWrapper<>();
+                        scenePlanWrapper.eq(ScenePlan::getSceneId, scene.getId());
+                        List<ScenePlan> scenePlans = scenePlanService.list(scenePlanWrapper);
+                        for (ScenePlan scenePlan:scenePlans){
+                            scenePlan.setState(0);
+                            scenePlanService.updateById(scenePlan);
+                            scheduleTask.updateScenePlans();
+                        }
+                    }
                     return Result.success().setData("mes", "已删除标识为" + deviceId + "的空调");
                 }else{
                     return Result.error().setData("mes", "没有找到" + deviceId + "的空调");
@@ -255,7 +293,27 @@ public class RoomController {
             }
             case "灯泡": {
                 if (lightService.getById(deviceId) != null) {
+                    // 删除电器
                     lightService.removeById(deviceId);
+                    // 修改场景的电器
+                    LambdaQueryWrapper<Scene> sceneWrapper = new LambdaQueryWrapper<>();
+                    sceneWrapper.like(Scene::getAppliance, "," + deviceId + ";");
+                    List<Scene> scenes = sceneService.list(sceneWrapper);
+                    for (Scene scene:scenes){
+                        String appliance = scene.getAppliance().replace("灯泡," + deviceId + ";", "");
+                        scene.setAppliance(appliance);
+                        scene.setState(0);
+                        sceneService.updateById(scene);
+                        // 修改场景计划将其关闭，不要忘记更新定时任务中的集合了哦
+                        LambdaQueryWrapper<ScenePlan> scenePlanWrapper = new LambdaQueryWrapper<>();
+                        scenePlanWrapper.eq(ScenePlan::getSceneId, scene.getId());
+                        List<ScenePlan> scenePlans = scenePlanService.list(scenePlanWrapper);
+                        for (ScenePlan scenePlan:scenePlans){
+                            scenePlan.setState(0);
+                            scenePlanService.updateById(scenePlan);
+                            scheduleTask.updateScenePlans();
+                        }
+                    }
                     return Result.success().setData("mes", "已删除标识为" + deviceId + "的灯泡");
                 }else{
                     return Result.error().setData("mes", "没有找到标识为" + deviceId + "的灯泡");
@@ -263,7 +321,27 @@ public class RoomController {
             }
             case "门锁": {
                 if (lockService.getById(deviceId) != null) {
+                    // 删除电器
                     lockService.removeById(deviceId);
+                    // 修改场景的电器
+                    LambdaQueryWrapper<Scene> sceneWrapper = new LambdaQueryWrapper<>();
+                    sceneWrapper.like(Scene::getAppliance, "," + deviceId + ";");
+                    List<Scene> scenes = sceneService.list(sceneWrapper);
+                    for (Scene scene:scenes){
+                        String appliance = scene.getAppliance().replace("门锁," + deviceId + ";", "");
+                        scene.setAppliance(appliance);
+                        scene.setState(0);
+                        sceneService.updateById(scene);
+                        // 修改场景计划将其关闭，不要忘记更新定时任务中的集合了哦
+                        LambdaQueryWrapper<ScenePlan> scenePlanWrapper = new LambdaQueryWrapper<>();
+                        scenePlanWrapper.eq(ScenePlan::getSceneId, scene.getId());
+                        List<ScenePlan> scenePlans = scenePlanService.list(scenePlanWrapper);
+                        for (ScenePlan scenePlan:scenePlans){
+                            scenePlan.setState(0);
+                            scenePlanService.updateById(scenePlan);
+                            scheduleTask.updateScenePlans();
+                        }
+                    }
                     return Result.success().setData("mes", "已删除标识为" + deviceId + "的门锁");
                 }else {
                     return Result.error().setData("mes", "没有找到标识为" + deviceId + "的门锁");
@@ -271,7 +349,27 @@ public class RoomController {
             }
             case "其他": {
                 if (otherService.getById(deviceId) != null) {
+                    // 删除电器
                     otherService.removeById(deviceId);
+                    // 修改场景的电器
+                    LambdaQueryWrapper<Scene> sceneWrapper = new LambdaQueryWrapper<>();
+                    sceneWrapper.like(Scene::getAppliance, "," + deviceId + ";");
+                    List<Scene> scenes = sceneService.list(sceneWrapper);
+                    for (Scene scene:scenes){
+                        String appliance = scene.getAppliance().replace("其他," + deviceId + ";", "");
+                        scene.setAppliance(appliance);
+                        scene.setState(0);
+                        sceneService.updateById(scene);
+                        // 修改场景计划将其关闭，不要忘记更新定时任务中的集合了哦
+                        LambdaQueryWrapper<ScenePlan> scenePlanWrapper = new LambdaQueryWrapper<>();
+                        scenePlanWrapper.eq(ScenePlan::getSceneId, scene.getId());
+                        List<ScenePlan> scenePlans = scenePlanService.list(scenePlanWrapper);
+                        for (ScenePlan scenePlan:scenePlans){
+                            scenePlan.setState(0);
+                            scenePlanService.updateById(scenePlan);
+                            scheduleTask.updateScenePlans();
+                        }
+                    }
                     return Result.success().setData("mes", "已删除标识为" + deviceId + "的其他电器");
                 }else {
                     return Result.error().setData("mes", "没有找到标识为" + deviceId + "的其他电器");
@@ -291,7 +389,7 @@ public class RoomController {
      */
     @PutMapping("/allLightsOnOrOff")
     @ApiOperation("开启或者关闭所有灯泡")
-    public Result allOn(@ApiParam(value = "房间标识", required = true) @RequestParam("roomId") String roomId,
+    public Result allLightsOnOrOff(@ApiParam(value = "房间标识", required = true) @RequestParam("roomId") String roomId,
                         @ApiParam(value = "选择0[关闭]或1[开启]", required = true) @RequestParam("op") Integer op){
         // 默认是关闭命令
         Integer state = 1;
@@ -340,7 +438,7 @@ public class RoomController {
      * @return Result
      */
     @DeleteMapping("/deleteRoom")
-    @ApiOperation("通过标识删除房间, 房间里的电器, 房间里的场景")
+    @ApiOperation("通过标识删除房间, 房间里的电器, 房间里的场景, 以及相关场景计划")
     public Result deleteRoom(@ApiParam(value = "房间标识", required = true) @RequestParam("roomId") String roomId){
         Room room = roomService.getById(roomId);
         if (room != null){
@@ -349,6 +447,11 @@ public class RoomController {
             lightService.remove(new LambdaQueryWrapper<Light>().eq(Light::getRoomId, roomId));
             lockService.remove(new LambdaQueryWrapper<Lock>().eq(Lock::getRoomId, roomId));
             otherService.remove(new LambdaQueryWrapper<Other>().eq(Other::getRoomId, roomId));
+            // 删除场景所有场景计划
+            List<Scene> scenes = sceneService.list(new LambdaQueryWrapper<Scene>().eq(Scene::getRoomId, roomId));
+            for (Scene scene:scenes){
+                scenePlanService.remove(new LambdaQueryWrapper<ScenePlan>().eq(ScenePlan::getSceneId, scene.getId()));
+            }
             // 删除房间所有场景
             sceneService.remove(new LambdaQueryWrapper<Scene>().eq(Scene::getRoomId, roomId));
             // 删除房间
@@ -476,6 +579,56 @@ public class RoomController {
     }
 
     /**
+     * 通过房间标识统一操作房间灯泡
+     * @param roomId 房间标识
+     * @param onOrOff 开还是关
+     * @param red 红色
+     * @param green 绿色
+     * @param blue 蓝色
+     * @param value 亮度
+     * @return Result
+     */
+    @ApiOperation("通过房间标识统一操作房间灯泡")
+    @PutMapping("/allLightOps")
+    public Result allLightOps(@ApiParam(value = "房间标识", required = true) @RequestParam("roomId") String roomId,
+                              @ApiParam(value = "开[1], 关[0]", required = true) @RequestParam("onOrOff") String onOrOff,
+                              @ApiParam(value = "r[0~255]", required = true) @RequestParam("red") String red,
+                              @ApiParam(value = "g[0~255]", required = true) @RequestParam("green") String green,
+                              @ApiParam(value = "b[0~255]", required = true) @RequestParam("blue") String blue,
+                              @ApiParam(value = "目标亮度[0~99]", required = true) @RequestParam("value") String value){
+        // 判断房间是否存在
+        Room room = roomService.getById(roomId);
+        if (room != null){
+            // 通过房间id获取房间所有的灯泡
+            List<Light> lights = lightService.list(new LambdaQueryWrapper<Light>().eq(Light::getRoomId, roomId));
+            // 对这些灯泡进行控制
+            // 控制开关
+            Result res1 = allLightsOnOrOff(roomId, Integer.parseInt(onOrOff));
+            JSONObject res1Json = (JSONObject) JSONObject.toJSON(res1);
+            if (!res1Json.get("code").toString().equals("20000")){
+                return res1;
+            }
+            for (Light light:lights){
+                // 控制颜色
+                Result res2 = lightController.color(light.getId(), red, green, blue);
+                JSONObject res2Json = (JSONObject) JSONObject.toJSON(res2);
+                if (!res2Json.get("code").toString().equals("20000")){
+                    return res2;
+                }
+                // 控制亮度
+                Result res3 = lightController.intensity(light.getId(), value);
+                JSONObject res3Json = (JSONObject) JSONObject.toJSON(res3);
+                if (!res3Json.get("code").toString().equals("20000")){
+                    return res3;
+                }
+            }
+            return Result.success().setData("mes", "成功设置!");
+        }else {
+            return Result.error().setData("mes", "没有找到标识为" + roomId + "的房间");
+        }
+    }
+
+    /**
      * 语音识别
      * @param mp3File 语音识别的mp3文件
      * @return Result
@@ -549,7 +702,7 @@ public class RoomController {
 
 
     /**
-     * 开启或者关闭本房间所有灯泡
+     * 开启或者关闭本房间所有空调
      * @param roomId 房间id
      * @param op 操作
      * @return result
@@ -724,13 +877,13 @@ public class RoomController {
     @PutMapping("allLightSet")
     @ApiOperation("语音识别-设置房间的所有灯泡亮度")
     public Result allLightSet(@ApiParam(value = "房间标识", required = true) @RequestParam("roomId") String roomId,
-                              @ApiParam(value = "目标亮度[0~100]整数", required = true) @RequestParam("value") String value){
+                              @ApiParam(value = "目标亮度[0~99]整数", required = true) @RequestParam("value") String value){
         Room room = roomService.getById(roomId);
         if (room != null){
             List<Light> lights = lightService.list(new LambdaQueryWrapper<Light>().eq(Light::getRoomId, roomId));
             try {
-                if (Integer.parseInt(value) < 0 || Integer.parseInt(value) > 100)
-                    return Result.error().setData("mes", "亮度为0~100, 实际为" + value);
+                if (Integer.parseInt(value) < 0 || Integer.parseInt(value) > 99)
+                    return Result.error().setData("mes", "亮度为0~99, 实际为" + value);
             }catch (ConversionException e) {
                 return Result.error().setData("mes", "整数转换错误");
             }
