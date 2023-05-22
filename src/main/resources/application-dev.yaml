@@ -5,7 +5,7 @@ server:
 spring:
   datasource:  # 数据源信息
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/smarthomesys?serverTimezone=GMT%2B8
+    url: jdbc:mysql://localhost:3306/smart_home_system?serverTimezone=GMT%2B8
     username: root
     password: 123456
   mvc:
@@ -29,7 +29,7 @@ mybatis-plus:
       logic-not-delete-value: 0 # 逻辑删除，0表示没有删除
       logic-delete-value: 1 # 逻辑删除，1表示删除
       logic-delete-field: deleted # deleted作为逻辑删除辅助字段
-      id-type: assign_id  # 对于主键，均采取雪花算法自动生成19位长度
+      id-type: auto  # 对于主键，从1自增
   type-aliases-package: com.lzp.smarthomesys.entity # 取别名，这样xml文件的返回类型只要写一个Student就可以了
 
 # 自定义配置

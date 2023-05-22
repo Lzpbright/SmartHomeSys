@@ -187,6 +187,16 @@ public class RoomController {
                             @ApiParam(value = "设备类别[选择：空调、灯泡、门锁、其他]", required = true) @RequestParam("type") String type,
                             @ApiParam(value = "更小位置[例如：电视右边]", required = true) @RequestParam("smallPos") String smallPos,
                             @ApiParam(value = "电器品牌[\"其他类别\"不需要品牌]") @RequestParam(value = "brand", required = false) String brand){
+        Light lighttest = new Light();
+        lighttest.setId("xxxx");
+        lighttest.setKind("TCL");
+        lighttest.setColor("RGB(143, 039, 039)");
+        lighttest.setPower("未知");
+        lighttest.setRoomId("xxx");
+        lighttest.setIntensity(99);
+        Result.success().setData("light", lighttest);
+
+
         // 判断该房间是否有其他电器
         Integer n1 = airconService.list(new LambdaQueryWrapper<Aircon>().eq(Aircon::getRoomId, roomId).eq(Aircon::getSmallPos, smallPos)).size();
         Integer n2 = lightService.list(new LambdaQueryWrapper<Light>().eq(Light::getRoomId, roomId).eq(Light::getSmallPos, smallPos)).size();

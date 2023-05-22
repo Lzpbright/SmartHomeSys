@@ -23,18 +23,18 @@ import lombok.experimental.Accessors;
 @ApiModel(value = "Aircon对象")
 @AllArgsConstructor
 @NoArgsConstructor
-@TableName("aircon")
+@TableName("air_con")
 public class Aircon implements IDevice {
 
     @TableId("id")
     @ApiModelProperty("空调标识")
     private String id;
 
-    @TableField("roomId")
+    @TableField("room_id")
     @ApiModelProperty("所属房间标识")
     private String roomId;
 
-    @TableField("smallPos")
+    @TableField("small_pos")
     @ApiModelProperty("更小位置")
     private String smallPos;
 
@@ -50,7 +50,7 @@ public class Aircon implements IDevice {
     @ApiModelProperty("温度")
     private Integer temper;
 
-    @TableField("windSpeed")
+    @TableField("wind_speed")
     @ApiModelProperty("风速")
     private String windSpeed;
 

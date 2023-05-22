@@ -3,6 +3,7 @@ package com.lzp.smarthomesys.controller;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.lzp.smarthomesys.entity.*;
 import com.lzp.smarthomesys.service.impl.*;
+import com.lzp.smarthomesys.tasks.ScheduleTask;
 import com.lzp.smarthomesys.utils.Base64Utils;
 import com.lzp.smarthomesys.utils.EMailUtils;
 import com.lzp.smarthomesys.utils.Result;
@@ -48,8 +49,11 @@ public class UserController {
     @Resource
     OtherServiceImpl otherService;
 
+    @Resource
+    private ScheduleTask scheduleTask;
 
-    private final Map<String, String> authCodes = new HashMap<>();
+
+    public final Map<String, String> authCodes = new HashMap<>();
 
     /**
      * 发送邮箱验证码
@@ -64,7 +68,7 @@ public class UserController {
         String authCode = String.format("%05d", randomNum); // 转换为5位的字符串
         try {
             authCodes.put(email, authCode);
-            EMailUtils.send("注册验证码", email, authCode, true);
+            EMailUtils.send("智家验证码", email, "<div style=\"text-align: center\"><h1>您的验证码为</h1><h2  style=\"color: blue\">" + authCode + "</h2></div>", true);
         }catch (Exception e){
              return Result.error().setData("mes", "邮箱或服务器错误");
         }
@@ -95,8 +99,8 @@ public class UserController {
                 // 默认房间
                 String userId = userService.getOne(wrapper).getId();
                 roomService.save(new Room().setUserId(userId).setPosition("客厅"));
-                roomService.save(new Room().setUserId(userId).setPosition("卧室"));
                 roomService.save(new Room().setUserId(userId).setPosition("厨房"));
+                roomService.save(new Room().setUserId(userId).setPosition("卧室"));
                 roomService.save(new Room().setUserId(userId).setPosition("卫生间"));
 
                 // 默认客厅门锁
@@ -135,6 +139,7 @@ public class UserController {
             return Result.error().setData("mes", "账号或密码错误");
         }
         else {
+            scheduleTask.setEmail(email);
             return Result.success().setData("user", user);
         }
     }
@@ -178,13 +183,40 @@ public class UserController {
     public Result modify(@ApiParam(value = "用户标识", required = true) @RequestParam("id") String id,
                          @ApiParam(value = "新密码", required = true) @RequestParam(value = "newPassword") String newPassword,
                          @ApiParam(value = "验证码", required = true) @RequestParam("authCode") String authCode){
-        User u = userService.getById(id);
-        if (u != null) {
-            String email = u.getEmail();
+        User user = userService.getById(id);
+        if (user != null) {
+            String email = user.getEmail();
             if (authCode.equals(authCodes.get(email))) {
                 authCodes.remove(email);
-                User user = new User();
-                user.setId(id);
+                user.setPassword(Base64Utils.encodeText(newPassword));
+                userService.updateById(user);
+                return Result.success().setData("mes", "修改成功");
+            } else {
+                return Result.error().setData("mes", "验证码不匹配");
+            }
+        }
+        else{
+            return Result.error().setData("mes", "查无此人");
+        }
+    }
+
+    /**
+     * 用户密码修改（通过邮箱）
+     * @param email 邮箱
+     * @param newPassword 新密码
+     * @param authCode 授权码
+     * @return Result
+     */
+    @ApiOperation("用户密码修改（通过邮箱）")
+    @GetMapping("/modifyPasswordByEmail")
+    public Result modifyPasswordByEmail(@ApiParam(value = "邮箱", required = true) @RequestParam("email") String email,
+                         @ApiParam(value = "新密码", required = true) @RequestParam(value = "newPassword") String newPassword,
+                         @ApiParam(value = "验证码", required = true) @RequestParam("authCode") String authCode){
+        List<User> users = userService.list(new LambdaQueryWrapper<User>().eq(User::getEmail, email));
+        if (users.size() >= 1) {
+            if (authCode.equals(authCodes.get(email))) {
+                authCodes.remove(email);
+                User user = users.get(0);
                 user.setPassword(Base64Utils.encodeText(newPassword));
                 userService.updateById(user);
                 return Result.success().setData("mes", "修改成功");

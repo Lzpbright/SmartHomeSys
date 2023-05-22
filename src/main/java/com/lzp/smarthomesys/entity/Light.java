@@ -30,11 +30,11 @@ public class Light implements IDevice {
     @ApiModelProperty("灯标识")
     private String id;
 
-    @TableField("roomId")
+    @TableField("room_id")
     @ApiModelProperty("所属房间标识")
     private String roomId;
 
-    @TableField("smallPos")
+    @TableField("small_pos")
     @ApiModelProperty("更小位置")
     private String smallPos;
 

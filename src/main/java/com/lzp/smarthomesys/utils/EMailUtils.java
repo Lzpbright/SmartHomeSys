@@ -58,7 +58,7 @@ public class EMailUtils {
             // 发送邮箱
             javaMailSender.send(mailMessage);
         } catch (MessagingException e) {
-            log.info("邮件发送失败", e);
+            log.info("邮件发送失败，目标邮箱为" + to, e);
         }
     }
 }

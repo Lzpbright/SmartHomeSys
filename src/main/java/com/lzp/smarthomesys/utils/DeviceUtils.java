@@ -25,6 +25,7 @@ public class DeviceUtils {
             log.info("没有获取到Authorization", e);
         }
         Map<String, String> params = new HashMap<>();
+        log.info("发送命令：" + cmd);
         params.put("data", cmd);
         return HttpUtils.sendPost(url, headers, params);
     }

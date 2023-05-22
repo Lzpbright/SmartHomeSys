@@ -30,11 +30,11 @@ public class Lock implements IDevice {
     @ApiModelProperty("门锁标识")
     private String id;
 
-    @TableField("roomId")
+    @TableField("room_id")
     @ApiModelProperty("所属房间标识")
     private String roomId;
 
-    @TableField("smallpos")
+    @TableField("small_pos")
     @ApiModelProperty("更小位置")
     private String smallPos;
 
@@ -50,7 +50,7 @@ public class Lock implements IDevice {
     @ApiModelProperty("密码，用于解锁")
     private String password;
 
-    @TableField("temPassword")
+    @TableField("tem_password")
     @ApiModelProperty("临时密码, 用于临时解锁")
     private String temPassword;
 

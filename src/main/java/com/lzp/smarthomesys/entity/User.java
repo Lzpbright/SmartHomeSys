@@ -39,7 +39,7 @@ public class User {
     @ApiModelProperty("账号密码")
     private String password;
 
-    @TableField("teleNumber")
+    @TableField("tele_number")
     @ApiModelProperty("手机号码")
     private String teleNumber;
 
@@ -51,7 +51,7 @@ public class User {
     @ApiModelProperty("性别")
     private String sex;
 
-    @TableField("userIcon")
+    @TableField("user_icon")
     @ApiModelProperty("用户头像")
     private String userIcon;
 

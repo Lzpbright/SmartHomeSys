@@ -3,10 +3,7 @@ package com.lzp.smarthomesys.controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.lzp.smarthomesys.utils.FileUtils;
-import com.lzp.smarthomesys.utils.HttpUtils;
-import com.lzp.smarthomesys.utils.Result;
-import com.lzp.smarthomesys.utils.TokenUtils;
+import com.lzp.smarthomesys.utils.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -122,5 +119,23 @@ public class UnitedCtroller {
                 return Result.error().setData("mes", "天气接口出问题啦。。。");
             }
         }
+    }
+
+    /**
+     * 发送邮箱
+     * @param subject 主题
+     * @param to 发送对象
+     * @param content 内容
+     * @param isHtml 是否html
+     * @return Result
+     */
+    @GetMapping("/sendMail")
+    @ApiOperation("发送邮件")
+    public Result sendMail(@ApiParam(value = "主题", required = true) @RequestParam(value = "subject") String subject,
+                           @ApiParam(value = "发送对象", required = true) @RequestParam(value = "to") String to,
+                           @ApiParam(value = "内容", required = true) @RequestParam(value = "content") String content,
+                           @ApiParam(value = "是否html", required = true) @RequestParam(value = "isHtml") String isHtml){
+        EMailUtils.send(subject, to, content, Boolean.parseBoolean(isHtml));
+        return Result.success().setData("mes", "success");
     }
 }

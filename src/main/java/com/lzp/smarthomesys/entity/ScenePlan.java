@@ -23,26 +23,26 @@ import lombok.experimental.Accessors;
 @ApiModel(value = "Sceneplan对象")
 @AllArgsConstructor
 @NoArgsConstructor
-@TableName("sceneplan")
+@TableName("scene_plan")
 public class ScenePlan {
 
     @TableId("id")
     @ApiModelProperty("场景定时计划标识")
     private String id;
 
-    @TableField("sceneId")
+    @TableField("scene_id")
     @ApiModelProperty("场景标识")
     private String sceneId;
 
-    @TableField("startAt")
+    @TableField("start_at")
     @ApiModelProperty("场景开始时间")
     private String startAt;
 
-    @TableField("endAt")
+    @TableField("end_at")
     @ApiModelProperty("场景停止时间")
     private String endAt;
 
-    @TableField("weekChoose")
+    @TableField("week_choose")
     @ApiModelProperty("星期的选择1~7, 0表示单次")
     private String weekChoose;
 

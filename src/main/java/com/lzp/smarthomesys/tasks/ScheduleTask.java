@@ -1,11 +1,15 @@
 package com.lzp.smarthomesys.tasks;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.lzp.smarthomesys.controller.SceneController;
 import com.lzp.smarthomesys.entity.ScenePlan;
 import com.lzp.smarthomesys.service.impl.ScenePlanServiceImpl;
 import com.lzp.smarthomesys.service.impl.SceneServiceImpl;
+import com.lzp.smarthomesys.utils.EMailUtils;
+import com.lzp.smarthomesys.utils.HttpUtils;
+import com.lzp.smarthomesys.utils.TokenUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -17,7 +21,9 @@ import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Component
 @Slf4j
@@ -29,9 +35,16 @@ public class ScheduleTask {
     @Resource
     private SceneServiceImpl sceneService;
 
+    @Value("${onenet.device_id}")
+    private String device_id;
+
     private List<ScenePlan> scenePlans = new ArrayList<>();
 
     private String nowTimeOut;
+
+    private String email;
+
+    private int times = 3;
 
 
     @PostConstruct
@@ -43,6 +56,9 @@ public class ScheduleTask {
         updateScenePlans();
     }
 
+    /**
+     * 监测什么时候要执行莫任务
+     */
     @Async("myThreadPool")
     @Scheduled(cron = "0/1 * * * * ?")
     public void check(){
@@ -116,5 +132,40 @@ public class ScheduleTask {
                         .or()
                         .gt(ScenePlan::getEndAt, nowTimeOut)
                 ));
+    }
+
+    /**
+     * 监测是否触发了烟雾报警器，如果烟雾报警被触发，则发送邮件提醒用户
+     */
+    @Async("myThreadPool")
+    @Scheduled(cron = "0/5 * * * * ?")
+    public void fire(){
+        String url = "http://api.heclouds.com/devices/" + device_id + "/datastreams" + "/smoke";
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Authorization", TokenUtils.getOneNetToken());
+        String res = HttpUtils.sendGet(url, headers, new HashMap<>());
+        JSONObject resJson = JSONObject.parseObject(res);
+        if (resJson.get("error").equals("succ")){
+            JSONObject jsonObject = resJson.getJSONObject("data");
+            String current_value = jsonObject.get("current_value").toString();
+//            log.info(current_value);
+            if (current_value.equals("1") || times != 3){
+                if (email != null && times > 0){
+                    EMailUtils.send("火灾报警！！！", email, "<div style=\"text-align: center\"><h1>智家提示您</h1><h2  style=\"color: red\">房间着火！！请立马查看监控进行确认</h2></div>", true);
+                    times--;
+                }
+            }else {
+                times = 3;
+            }
+        }else {
+            log.info("获取数据流失败！！！");
+        }
+    }
+
+    /**
+     * 设置当前邮箱
+     */
+    public void setEmail(String email){
+        this.email = email;
     }
 }

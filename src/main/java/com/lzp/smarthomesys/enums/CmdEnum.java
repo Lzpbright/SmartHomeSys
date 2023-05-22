@@ -38,7 +38,8 @@ public enum CmdEnum {
     // 门锁
 
     LOCK_SWITCH_ON("LOCK_SWITCH_ON", "门锁开"),
-    LOCK_SWITCH_OFF("LOCK_SWITCH_OFF", "门锁关");
+    LOCK_SWITCH_OFF("LOCK_SWITCH_OFF", "门锁关"),
+    LOCK_PSW_RPL_("LOCK_PSW_RPL_", "设置门锁密码");
 
 
     /**

@@ -30,7 +30,7 @@ public class Scene {
     @ApiModelProperty("场景标识")
     private String id;
 
-    @TableField("roomId")
+    @TableField("room_id")
     @ApiModelProperty("所属房间标识")
     private String roomId;
 

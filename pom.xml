@@ -107,7 +107,7 @@
 			<artifactId>mp3spi</artifactId>
 			<version>1.9.5.4</version>
 		</dependency>
-		<!-- hutool-all: 时间格式转换 -->
+		<!-- hutool-all: 全面的工具类 -->
 		<dependency>
 			<groupId>cn.hutool</groupId>
 			<artifactId>hutool-all</artifactId>

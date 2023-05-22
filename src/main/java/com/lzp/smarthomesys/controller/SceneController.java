@@ -41,21 +41,6 @@ public class SceneController {
     RoomServiceImpl roomService;
 
     @Resource
-    UserServiceImpl userService;
-
-    @Resource
-    AirconServiceImpl airconService;
-
-    @Resource
-    LightServiceImpl lightService;
-
-    @Resource
-    LockServiceImpl lockService;
-
-    @Resource
-    OtherServiceImpl otherService;
-
-    @Resource
     ScenePlanServiceImpl scenePlanService;
 
     @Resource
@@ -184,54 +169,6 @@ public class SceneController {
     @GetMapping("/on")
     @ApiOperation("开启本场景")
     public Result on(@ApiParam(value = "场景标识", required = true) @RequestParam(value = "id") String id){
-//        Scene scene = sceneService.getById(id);
-//        if (scene != null) {
-//            if (scene.getState() == 0) {
-//                // 获取userId,从而获得user所有的电器
-//                Room theRoom = roomService.getById(scene.getRoomId());
-//                User user = userService.getById(theRoom.getUserId());
-//                String userId = user.getId();
-//
-//                // 一些所需中间变量
-//                String appliances = scene.getAppliance();
-//
-//                // 遍历用户所有的电器并进行响应操作
-//                LambdaQueryWrapper<Room> roomWrapper = new LambdaQueryWrapper<>();
-//                roomWrapper.eq(Room::getUserId, userId);
-//                List<Room> rooms = roomService.list(roomWrapper);
-//
-//                Map<Object, Object> result = new HashMap<>();
-//                for (Room room : rooms) {
-//                    LambdaQueryWrapper<Aircon> airconWrapper = new LambdaQueryWrapper<>();
-//                    LambdaQueryWrapper<Light> lightWrapper = new LambdaQueryWrapper<>();
-//                    LambdaQueryWrapper<Lock> lockWrapper = new LambdaQueryWrapper<>();
-//                    LambdaQueryWrapper<Other> otherWrapper = new LambdaQueryWrapper<>();
-//                    airconWrapper.eq(Aircon::getRoomId, room.getId());
-//                    lightWrapper.eq(Light::getRoomId, room.getId());
-//                    lockWrapper.eq(Lock::getRoomId, room.getId());
-//                    otherWrapper.eq(Other::getRoomId, room.getId());
-//                    List<Aircon> airconList = airconService.list(airconWrapper);
-//                    List<Light> lightList = lightService.list(lightWrapper);
-//                    List<Lock> lockList = lockService.list(lockWrapper);
-//                    List<Other> otherList = otherService.list(otherWrapper);
-//
-//                    List<IDevice> deviceList = new ArrayList<>();
-//                    deviceList.addAll(airconList);
-//                    deviceList.addAll(lightList);
-//                    deviceList.addAll(lockList);
-//                    deviceList.addAll(otherList);
-//                    result.put("房间" + room.getId(), SceneUtils.onOrOff(deviceList, appliances, "开启"));
-//                }
-//                result.put("场景电器", appliances);
-//                scene.setState(1);
-//                sceneService.updateById(scene);
-//                return Result.success().setData("result", result);
-//            } else {
-//                return Result.success().setData("mes", "标识为" + id + "的场景已开");
-//            }
-//        }else{
-//            return Result.error().setData("mes", "没有找到标识为" + id + "的场景");
-//        }
         return sceneService.on(id);
     }
 
@@ -243,54 +180,6 @@ public class SceneController {
     @GetMapping("/off")
     @ApiOperation("关闭本场景")
     public Result off(@ApiParam(value = "场景标识", required = true) @RequestParam(value = "id") String id){
-//        Scene scene = sceneService.getById(id);
-//        if (scene != null) {
-//            if (scene.getState() == 1) {
-//                // 获取userId,从而获得user所有的电器
-//                Room theRoom = roomService.getById(scene.getRoomId());
-//                User user = userService.getById(theRoom.getUserId());
-//                String userId = user.getId();
-//
-//                // 一些所需中间变量
-//                String appliances = scene.getAppliance();
-//
-//                // 遍历用户所有的电器并进行响应操作
-//                LambdaQueryWrapper<Room> roomWrapper = new LambdaQueryWrapper<>();
-//                roomWrapper.eq(Room::getUserId, userId);
-//                List<Room> rooms = roomService.list(roomWrapper);
-//
-//                Map<Object, Object> result = new HashMap<>();
-//                for (Room room : rooms) {
-//                    LambdaQueryWrapper<Aircon> airconWrapper = new LambdaQueryWrapper<>();
-//                    LambdaQueryWrapper<Light> lightWrapper = new LambdaQueryWrapper<>();
-//                    LambdaQueryWrapper<Lock> lockWrapper = new LambdaQueryWrapper<>();
-//                    LambdaQueryWrapper<Other> otherWrapper = new LambdaQueryWrapper<>();
-//                    airconWrapper.eq(Aircon::getRoomId, room.getId());
-//                    lightWrapper.eq(Light::getRoomId, room.getId());
-//                    lockWrapper.eq(Lock::getRoomId, room.getId());
-//                    otherWrapper.eq(Other::getRoomId, room.getId());
-//                    List<Aircon> airconList = airconService.list(airconWrapper);
-//                    List<Light> lightList = lightService.list(lightWrapper);
-//                    List<Lock> lockList = lockService.list(lockWrapper);
-//                    List<Other> otherList = otherService.list(otherWrapper);
-//
-//                    List<IDevice> deviceList = new ArrayList<>();
-//                    deviceList.addAll(airconList);
-//                    deviceList.addAll(lightList);
-//                    deviceList.addAll(lockList);
-//                    deviceList.addAll(otherList);
-//                    result.put("房间" + room.getId(), SceneUtils.onOrOff(deviceList, appliances, "关闭"));
-//                }
-//                result.put("场景电器", appliances);
-//                scene.setState(0);
-//                sceneService.updateById(scene);
-//                return Result.success().setData("result", result);
-//            } else {
-//                return Result.success().setData("mes", "标识为" + id + "的场景已关");
-//            }
-//        }else{
-//            return Result.error().setData("mes", "没有找到标识为" + id + "的场景");
-//        }
         return sceneService.off(id);
     }
 }

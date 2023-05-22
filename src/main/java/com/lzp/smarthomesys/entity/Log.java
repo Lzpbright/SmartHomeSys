@@ -35,7 +35,7 @@ public class Log {
     @ApiModelProperty("记录时间")
     private String time;
 
-    @TableField("userId")
+    @TableField("user_id")
     @ApiModelProperty("用户标识")
     private String userId;
 

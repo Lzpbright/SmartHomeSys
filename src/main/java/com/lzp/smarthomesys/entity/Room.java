@@ -30,7 +30,7 @@ public class Room {
     @ApiModelProperty("房间标识")
     private String id;
 
-    @TableField("userId")
+    @TableField("user_id")
     @ApiModelProperty("用户标识")
     private String userId;
 

@@ -34,7 +34,6 @@ public class LockServiceImpl extends ServiceImpl<LockMapper, Lock> implements IL
     @Override
     public void on(String id) {
         Lock lock = lockMapper.selectById(id);
-        Room room = roomMapper.selectById(lock.getRoomId());
         // aircon 对象
         lock.setState(1);
         lockMapper.updateById(lock);
@@ -47,11 +46,19 @@ public class LockServiceImpl extends ServiceImpl<LockMapper, Lock> implements IL
     @Override
     public void off(String id) {
         Lock lock = lockMapper.selectById(id);
-        Room room = roomMapper.selectById(lock.getRoomId());
         // aircon 对象
         lock.setState(0);
         lockMapper.updateById(lock);
     }
+
+    @Override
+    public void setPwd(String id, String pwd) {
+        Lock lock = lockMapper.selectById(id);
+        // aircon 对象
+        lock.setPassword(pwd);
+        lockMapper.updateById(lock);
+    }
+
 
     /**
      * 实现接口,通过id获取对象

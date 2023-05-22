@@ -16,4 +16,6 @@ public interface ILockService extends IService<Lock>, IDeviceService {
     void on(String id);
 
     void off(String id);
+
+    void setPwd(String id, String pwd);
 }
