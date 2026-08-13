@@ -6,16 +6,16 @@ spring:
   datasource:  # 数据源信息
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/smart_home_system?serverTimezone=GMT%2B8
-    username: root
-    password: 123456
+    username: xxx
+    password: xxxxx
   mvc:
     pathmatch:
       matching-strategy: ANT_PATH_MATCHER # swagger3之后需要设置
   mail: # 邮箱配置
     default-encoding: utf-8 # 邮箱默认编码
     host: smtp.qq.com # 邮箱服务器名
-    username: lzpBright@qq.com  # 发送账户
-    password: eeddhsgikcntdefe  # 邮箱授权码
+    username: xxx@xx.xx  # 发送账户
+    password: xxx  # 邮箱授权码
     port: 587 # 服务器端口
   servlet:
     multipart:
@@ -34,11 +34,11 @@ mybatis-plus:
 
 # 自定义配置
 onenet:
-  accessKey: 9aVh07RAj13tIqQM5FM6bJbB5jJx5a/oJIg7BokHeqc= # 产品的access_key
-  productId: 569568 # onenet产品ID
+  accessKey: xxx # 产品的access_key
+  productId: xxx # onenet产品ID
   version: 2018-10-31 # 版本号，无需改动
-  api_key: eaoh5qproOYKR8cmLoD0ZGLyvhY= # 产品apikey
-  device_id: 1037659370 # 设备id
+  api_key: xxxx # 产品apikey
+  device_id: Xxx # 设备id
   timeout: 30 # 等待响应时间单位为秒
 images:
   accessPath: /userIcons/ # 访问头像的虚拟路径
@@ -48,10 +48,10 @@ audio:
   actualPath: E:/IDEAProject/SmartHomeSys/src/main/resources/audio/ # 访问语音的真实路径
 aliyun:
   url: https://nls-gateway-cn-shanghai.aliyuncs.com/stream/v1/asr # 语音识别接口地址
-  apikey: SEUNvgUev8UbWM02 # 语音识别的apikey
+  apikey: xxx # 语音识别的apikey
   rate: 16000 # 语音识别的音频文件的音频参数,额每秒记录16000次的那个属性
-  accessKeyId: LTAI5tMQkhDxYgbFBSioBMk9 # 阿里云的访问密钥id
-  accessKeySecret: gj6jcJWJCqXV5oWQyFnVNKN0K6SjH9 # 阿里云访问云产品的密钥
+  accessKeyId: xxx # 阿里云的访问密钥id
+  accessKeySecret: xxx # 阿里云访问云产品的密钥
   tokenPath: E:/IDEAProject/SmartHomeSys/src/main/resources/appFiles/ # 保存语音识别token的路径
 weather:
-  key: 66688effa4f403355ede760c79c29e03 # 获取天气的接口密钥，高德开发平台的接口
+  key: xxx # 获取天气的接口密钥，高德开发平台的接口
